@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Menu | The HB Restaurant &amp; Lounge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:            #ffffff;
+  --text:          #111111;
+  --brand:         #1F6F3A;   /* emerald */
+  --brand-bright:  #2ECC71;   /* hover / highlights */
+  --brand-text:    #ffffff;   /* text on brand colour */
+  --btn-bg:        #0a0a0a;
+  --btn-text:      #ffffff;
+  --nav-h:         56px;      /* navbar height (mobile bar) */
+  --nav-end-r:     28px;      /* final corner radius of the navbar: a full pill on phones */
+  --nav-top:       10px;      /* phones: gap between the top of the screen and the floating pill */
+  --radius:        999px;
+  --shadow:        0 8px 24px rgba(0,0,0,.18);
+  --font-body:     system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --font-head:     Georgia,"Times New Roman",serif;
+  --font-motto:    "Abril Fatface","Playfair Display",Georgia,"Times New Roman",serif;   /* bold display serif, like the HB lettering */
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:90px}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.5}
+a{color:inherit;text-decoration:none}
+a:focus-visible{outline:3px solid var(--brand-bright);outline-offset:2px}
+
+/* ================= NAVBAR =================
+   Intro: starts as a circle in the centre, then expands horizontally (same moment the
+   logo's text slides out) and the links fade in as it opens. Plays once.
+   Mobile: full-width bar across the top. Desktop: centred, curved, floating bar. */
+.nav{
+  position:fixed;top:var(--nav-top);left:8px;right:8px;z-index:100;   /* phones: floats like a dynamic island */
+  height:var(--nav-h);color:var(--brand-text);
+  filter:drop-shadow(0 6px 10px rgba(0,0,0,.2));
+}
+.nav__inner{
+  height:100%;background:var(--brand);
+  animation:
+    navPop .9s cubic-bezier(.34,1.56,.64,1) .1s 1 both,
+    navExpand 1.3s cubic-bezier(.65,0,.25,1) 1.55s 1 both;
+}
+.nav ul{
+  list-style:none;margin:0;padding:0 8px;height:100%;
+  display:flex;align-items:center;justify-content:space-between;gap:0;
+  overflow-x:auto;scrollbar-width:none;
+  animation:navLinksIn .6s ease 2.25s 1 both;
+}
+.nav ul::-webkit-scrollbar{display:none}
+.nav li{flex:0 0 auto}
+.nav a{
+  display:block;white-space:nowrap;
+  padding:8px 3.5px;border-radius:var(--radius);
+  font-weight:600;font-size:10.5px;
+  transition:background .2s ease,color .2s ease;
+}
+.nav a:hover{background:rgba(255,255,255,.14)}
+.nav a.nav__cta{
+  background:var(--btn-bg);color:var(--btn-text);padding:8px 9px;
+}
+.nav a.nav__cta:hover{background:#000;color:var(--brand-bright)}
+
+/* the circle drops in from above the top of the screen (like it came out of the address bar), then spreads */
+@keyframes navPop{from{transform:translateY(calc(-100% - var(--nav-top) - 60px))}to{transform:none}}
+@keyframes navExpand{
+  from{clip-path:inset(0 calc(50% - var(--nav-h)/2) 0 calc(50% - var(--nav-h)/2) round calc(var(--nav-h)/2))}
+  to  {clip-path:inset(0 0 0 0 round var(--nav-end-r))}
+}
+@keyframes navLinksIn{from{opacity:0}to{opacity:1}}
+
+@media (max-width:399px){
+  .nav a{font-size:10px;padding:8px 3px}
+  .nav a.nav__cta{padding:8px 8px}
+}
+@media (max-width:349px){
+  .nav a{font-size:9px;padding:8px 2px}
+  .nav a.nav__cta{padding:8px 6px}
+}
+@media (min-width:450px){
+  .nav ul{padding:0 8px;gap:2px}
+  .nav a{font-size:12px;padding:10px 7px}
+  .nav a.nav__cta{padding:10px 14px}
+}
+@media (min-width:600px){
+  .nav ul{padding:0 10px;gap:4px}
+  .nav a{font-size:13.5px;padding:10px 12px}
+  .nav a.nav__cta{padding:10px 22px}
+}
+
+/* desktop: curved + centred, doesn't span the top */
+@media (min-width:900px){
+  :root{--nav-h:64px;--nav-end-r:32px}
+  .nav{
+    left:50%;right:auto;top:16px;
+    transform:translateX(-50%);
+    width:max-content;max-width:calc(100% - 32px);
+  }
+  .nav ul{padding:0 10px;gap:6px;justify-content:center;overflow:visible}
+  .nav a{font-size:15px;padding:11px 20px}
+  .nav a.nav__cta{padding:11px 26px}
+}
+
+
+.nav a[aria-current="page"]{background:rgba(255,255,255,.18)}
+
+/* ================= PAGE HEADER =================
+   Same navbar intro as the homepage. Once it has opened, the logo + motto simply fade in at their
+   final homepage positions (phones: small, top-left with the motto beside it; desktop: left, motto under it). */
+.hb-logo{display:block;width:100%;height:auto;overflow:visible}
+.mh{
+  --logo-w:clamp(150px,42vw,190px);
+  --s:.5;
+  --lw:calc(var(--logo-w) * var(--s));
+  --lh:calc(var(--logo-w) * 450 / 340 * var(--s));
+  --mf:min(calc(var(--lh) / 4.4), calc((100vw - var(--lw) - 60px) / 9.4));
+  padding:calc(var(--nav-h) + var(--nav-top) + 12px) 12px 8px;
+}
+.mh__brand{display:flex;align-items:center;gap:10px;animation:mhIn .8s ease 2.7s 1 both}
+.mh__brand .hb-logo{width:var(--lw);flex:0 0 auto}
+.mh__motto p{
+  margin:0;padding:0 0 0 10px;border-left:4px solid #0a0a0a;
+  font:900 var(--mf)/1.1 var(--font-motto);font-synthesis:none;letter-spacing:.01em;color:#0a0a0a;text-align:left;
+}
+.mh__motto .m1{display:block;color:var(--brand);text-transform:uppercase;letter-spacing:.03em}
+.mh__motto .m2{display:block}
+.mh__title{margin-top:18px;padding:0 4px;animation:mhIn .8s ease 3s 1 both}
+.mh__title h1{margin:0 0 6px;font-family:var(--font-head);font-size:clamp(32px,9vw,44px);line-height:1.1;color:var(--brand)}
+.mh__title p{margin:0;color:#555;font-size:16px}
+@keyframes mhIn{from{opacity:0}to{opacity:1}}
+@media (min-width:600px){ .mh{--logo-w:260px} }
+@media (min-width:900px){
+  .mh{
+    --logo-w:clamp(200px,18vw,260px);--s:1;
+    display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:72px;
+    padding:104px 48px 24px;max-width:1296px;margin:0 auto;
+  }
+  .mh__brand{flex-direction:column;align-items:center;gap:8px}
+  .mh__motto p{border-left:0;padding:0;text-align:center;font-size:calc(var(--logo-w) * .05);line-height:1.25}
+  .mh__motto .m1{font-size:1.1em;letter-spacing:.04em}
+  .mh__motto .mb{display:none}
+  .mh__title{margin:0;padding:0}
+  .mh__title h1{font-size:clamp(44px,5vw,64px)}
+  .mh__title p{font-size:18px}
+}
+
+/* ================= MENU GRID: 1 per row on phones, 3 per row on desktop ================= */
+.menu{max-width:1296px;margin:0 auto;padding:20px 16px 56px}
+.menu__grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr;gap:20px}
+.dish{
+  display:flex;flex-direction:column;overflow:hidden;border-radius:18px;background:#fff;
+  box-shadow:0 6px 22px rgba(0,0,0,.1);
+  opacity:0;transform:translateY(24px);
+  transition:opacity .6s ease,transform .7s cubic-bezier(.22,1,.36,1);
+}
+.dish.is-in{opacity:1;transform:none}
+.dish__img{
+  position:relative;aspect-ratio:4/3;overflow:hidden;
+  background:linear-gradient(160deg,#f6f9f6 0%,#dcecdf 55%,#b7d8c1 100%);   /* shows until menu1.jpg ... menu12.jpg exist */
+}
+.dish__img img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover}
+.dish__body{padding:16px 18px 20px}
+.dish h3{margin:0 0 6px;font-family:var(--font-head);font-size:21px;line-height:1.2;color:#111}
+.dish p{margin:0;color:#555;font-size:15px;line-height:1.5}
+@media (min-width:900px){
+  .menu{padding:24px 48px 72px}
+  .menu__grid{grid-template-columns:repeat(3,1fr);gap:28px}
+}
+@media (prefers-reduced-motion:reduce){
+  .nav a{transition:none}
+  .nav__inner,.nav ul{animation:none}
+  .mh__brand,.mh__title{animation:none}
+  .dish{opacity:1;transform:none;transition:none}
+}
+
+/* ================= FOOTER ================= */
+.footer{
+  background:var(--brand);color:var(--brand-text);
+  padding:36px 16px calc(24px + env(safe-area-inset-bottom,0px));
+  text-align:center;
+}
+.footer ul{list-style:none;margin:0 auto;padding:0;max-width:900px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px 8px}
+.footer a{
+  display:block;padding:10px 16px;border-radius:var(--radius);
+  font-weight:600;font-size:14px;white-space:nowrap;
+  transition:background .2s ease,color .2s ease;
+}
+.footer a:hover{background:rgba(255,255,255,.14)}
+.footer a.nav__cta{background:var(--btn-bg);color:var(--btn-text)}
+.footer a.nav__cta:hover{background:#000;color:var(--brand-bright)}
+.footer a:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.footer__copy{
+  margin:28px auto 0;padding-top:18px;max-width:900px;
+  border-top:1px solid rgba(255,255,255,.28);
+  font-size:13px;letter-spacing:.02em;
+}
+@media (prefers-reduced-motion:reduce){ .footer a{transition:none} }
+</style>
+</head>
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<nav class="nav" aria-label="Main">
+  <div class="nav__inner">
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="menu.html" aria-current="page">Menu</a></li>
+    <li><a href="index.html#reservations">Reservations</a></li>
+    <li><a href="index.html#order" class="nav__cta">Order</a></li>
+    <li><a href="index.html#care">Customer Care</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  </div>
+</nav>
+
+<main>
+  <!-- ================= HEADER: logo fades in at its final spot ================= -->
+  <header class="mh">
+    <div class="mh__brand">
+      <svg class="hb-logo" xmlns="http://www.w3.org/2000/svg" viewBox="191 136 340 450" role="img" aria-label="The HB Restaurant &amp; Lounge">
+      <defs>
+        <!-- Only shows what is below the fork's base, so the text appears to emerge from under it -->
+        <clipPath id="hbReveal"><rect x="0" y="301" width="720" height="500"/></clipPath>
+      </defs>
+
+      <!-- Static offset so the finished logo sits centred -->
+      <g transform="translate(-2 44)">
+        <g class="hb-mover">
+
+          <!-- TEXT (behind the fork, clipped below its base) -->
+          <g clip-path="url(#hbReveal)">
+            <g class="hb-text-slide" fill="#0a0a0a">
+
+              <!-- "the" (traced from the original logo) -->
+              <path fill-rule="evenodd" d="M398.4 332.6 394.1 335.9 390.1 340.4 387.4 345.9 386.6 349.4 386.6 354.6 387.9 359.9 390.9 365.1 393.9 368.4 395.9 370.1 400.9 373.1 406.9 375.4 408.6 375.4 409.9 375.9 412.1 376.1 418.6 376.1 421.9 375.4 423.4 375.4 427.6 373.9 433.4 370.6 437.4 366.9 439.1 364.6 439.1 363.9 435.9 360.4 435.1 360.1 432.1 363.6 429.4 366.1 425.1 368.4 419.9 369.9 417.9 370.1 412.6 370.1 409.6 369.4 405.4 366.9 402.4 363.9 401.1 362.1 398.4 355.9 398.1 347.6 398.9 344.9 400.4 341.6 403.9 337.6 406.1 336.1 408.6 335.1 411.9 334.4 417.1 334.6 419.4 335.4 421.6 336.6 424.4 339.6 425.9 342.9 425.9 344.6 425.1 345.1 412.9 345.4 408.9 346.6 406.4 348.1 403.9 350.9 402.9 352.9 402.4 355.1 402.4 357.1 402.9 358.9 404.4 360.9 407.1 362.1 409.1 362.1 410.1 361.6 410.6 353.9 412.6 351.9 413.6 351.6 433.9 351.9 435.9 351.1 437.4 349.4 437.9 347.6 437.4 342.1 434.9 337.1 431.6 333.6 429.1 331.9 425.4 330.1 416.6 328.4 412.1 328.4 406.4 329.4 403.1 330.4Z M327.9 313.4 327.6 316.6 328.1 317.6 328.6 317.9 333.4 317.9 334.6 319.1 334.6 363.9 334.9 364.1 334.6 378.6 334.9 379.1 334.6 380.9 333.6 381.9 327.9 381.9 326.9 382.4 326.6 385.9 327.4 387.1 352.9 387.4 354.1 386.6 354.4 383.4 353.6 382.1 352.9 381.9 347.9 382.1 346.4 381.1 346.4 350.4 347.4 345.1 350.1 339.9 353.9 336.1 358.4 334.4 362.4 334.4 364.4 335.6 366.4 338.4 367.1 341.9 367.4 364.9 368.1 368.9 369.6 373.4 370.6 375.4 373.6 379.6 379.4 384.9 383.6 387.4 390.6 389.9 395.9 390.9 412.1 390.6 418.6 389.1 424.1 387.4 426.9 386.1 434.9 381.6 439.4 378.1 439.6 377.6 439.4 376.1 437.9 374.4 436.6 373.9 435.9 374.1 432.9 376.6 425.9 380.4 419.4 382.6 411.4 384.1 400.4 383.9 397.9 383.1 396.4 383.1 388.9 380.1 385.9 378.1 383.1 375.6 381.4 373.4 379.1 368.4 378.6 364.6 378.6 342.6 377.4 337.6 375.4 334.4 372.9 331.9 369.4 329.9 363.6 328.4 359.9 328.4 353.4 330.1 350.1 331.9 347.4 334.4 346.4 334.6 345.9 334.1 346.1 327.6 346.4 327.4 346.4 313.1 346.1 312.9 346.4 309.1 345.6 307.9 342.1 307.6 341.1 308.1 340.9 310.9 339.4 312.4 336.1 312.9 329.1 312.6Z M294.1 306.9 293.4 307.6 293.4 319.6 292.6 323.1 290.1 327.4 288.6 328.9 286.1 330.1 276.4 330.1 275.4 330.9 275.4 336.1 276.1 337.1 283.4 337.1 283.6 337.4 285.6 337.1 286.6 337.4 287.4 338.4 287.4 374.6 288.9 379.4 290.6 381.9 292.4 383.6 295.6 385.6 298.1 386.6 303.6 387.6 309.4 387.4 311.1 386.9 316.1 384.1 318.9 381.1 321.4 376.1 321.4 373.6 321.6 373.4 321.4 368.4 318.4 362.4 315.9 359.9 313.6 358.4 307.9 356.1 301.4 356.1 300.6 357.1 300.6 357.9 301.6 361.4 303.1 362.9 304.6 363.6 308.1 364.1 311.9 365.6 314.4 368.1 315.1 369.6 315.6 372.9 315.1 375.4 314.1 377.4 311.6 379.9 309.9 380.9 307.9 381.4 303.9 381.4 301.6 380.6 300.1 379.4 298.9 376.9 298.9 338.4 299.6 337.4 300.6 337.1 320.6 337.1 321.4 336.4 321.4 330.9 320.6 330.1 299.9 330.1 299.1 329.4 298.9 328.1 298.9 323.4 299.1 323.1 298.9 322.1 298.9 309.4 299.1 309.1 298.9 307.4 298.4 306.9Z"/>
+
+              <!-- "HB" (traced from the original logo) -->
+              <path fill-rule="evenodd" d="M260.4 396.9 260.1 397.1 260.1 401.6 260.6 402.1 266.6 402.1 267.9 403.1 267.9 496.9 266.9 497.9 260.6 497.9 260.1 498.4 260.1 502.9 260.4 503.1 301.6 503.1 301.9 502.6 301.9 498.4 301.1 497.9 295.4 497.9 294.6 497.6 293.9 496.4 294.1 495.6 294.1 455.1 293.9 454.9 294.1 453.9 294.9 453.1 329.1 453.1 329.9 453.6 330.1 454.6 329.9 456.4 329.9 495.6 330.1 496.4 329.9 497.1 328.6 497.9 322.6 497.9 322.1 498.4 322.4 503.1 363.6 503.1 363.9 502.9 363.9 498.4 363.4 497.9 357.4 497.9 356.6 497.6 356.1 496.9 356.1 403.1 357.4 402.1 363.4 402.1 363.9 401.6 363.9 397.1 363.6 396.9 322.6 396.9 322.1 397.4 322.1 401.6 322.6 402.1 328.4 402.1 329.4 402.4 330.1 403.6 330.1 443.6 329.9 443.9 330.1 446.4 329.9 446.9 328.9 447.6 295.1 447.6 293.9 446.4 294.1 445.4 294.1 404.4 293.9 403.6 294.1 402.9 295.4 402.1 301.4 402.1 301.9 401.6 301.9 397.4 301.4 396.9Z M450.1 401.6 447.1 399.6 442.4 397.4 437.9 396.1 429.1 395.1 422.9 395.4 420.4 395.9 414.1 396.1 404.9 397.1 388.6 397.1 388.4 396.9 373.4 396.9 373.1 397.1 373.1 401.6 373.6 402.1 379.6 402.1 380.9 403.1 380.9 496.9 379.9 497.9 373.6 497.9 373.1 498.1 372.9 502.4 373.4 503.1 423.1 503.1 423.4 502.9 430.1 502.6 433.4 501.9 435.1 501.9 438.4 500.9 439.6 500.9 442.1 499.9 443.1 499.9 448.4 497.9 454.9 494.1 456.9 492.6 460.1 489.4 463.9 483.6 464.1 482.4 464.9 481.1 466.1 475.4 465.9 467.1 464.6 463.1 462.9 459.6 460.6 456.6 458.4 454.4 455.6 452.4 451.4 450.1 449.4 449.4 444.4 448.4 441.9 448.4 441.6 448.1 434.1 448.4 433.9 448.1 434.9 447.1 438.4 445.9 442.6 443.6 448.1 439.9 452.9 435.1 454.6 432.6 456.6 428.6 457.9 424.4 458.4 419.9 457.9 414.1 456.9 410.6 455.4 407.6 453.9 405.4Z M407.6 453.9 408.4 453.6 417.4 453.9 421.6 454.6 425.6 455.9 427.9 456.9 431.1 459.1 433.6 461.6 435.9 465.1 437.1 468.1 438.1 473.6 438.1 479.4 437.4 483.4 436.4 486.1 434.4 489.4 431.4 492.4 428.6 494.1 423.6 496.1 422.6 496.1 420.6 496.9 412.1 497.9 407.6 497.9 407.1 497.4 406.9 496.6 406.9 456.1 407.1 455.9 406.9 454.6Z M407.6 402.1 410.1 402.1 416.1 403.1 421.1 405.4 423.1 406.9 425.6 409.4 428.1 413.4 429.1 416.1 430.1 421.6 430.1 428.6 429.6 431.9 428.1 436.4 426.1 439.9 422.6 443.4 418.4 445.9 415.6 446.9 409.4 448.1 407.6 448.1 406.9 447.4 406.9 403.1Z"/>
+
+              <!-- RESTAURANT & LOUNGE -->
+              <text x="258" y="527" font-family="Poppins, Montserrat, 'Helvetica Neue', Arial, sans-serif"
+                    font-size="18" font-weight="500" textLength="204" lengthAdjust="spacingAndGlyphs">RESTAURANT &amp; LOUNGE</text>
+            </g>
+          </g>
+
+          <!-- FORK (on top) -->
+          <g class="hb-fork-fade">
+            <g fill="#0a0a0a">
+              <rect x="287" y="175" width="29" height="62"/>
+              <rect x="338" y="145" width="24" height="92"/>
+              <rect x="385" y="102" width="28" height="135"/>
+              <path d="M287 200 H316 V212 Q327 236 338 212 V200 H362 V212 Q373.5 236 385 212 V200 H413
+                       V228 C413 262 388 283 365 286 V300 H335 V286 C312 283 287 262 287 228 Z"/>
+            </g>
+            <g class="hb-leaf-spin">
+              <path class="hb-leaf" fill="#1f6f1f"
+                    d="M351 100 Q353 112 365 115 Q353 119 351 131 Q349 119 337 115 Q349 112 351 100 Z"/>
+            </g>
+          </g>
+
+        </g>
+      </g>
+    </svg>
+      <div class="mh__motto"><p><span class="m1">Authentic<br class="mb"> Nigerian food</span> <span class="m2">that tastes like<br class="mb"> it&rsquo;s origin</span></p></div>
+    </div>
+    <div class="mh__title">
+      <h1>Our Menu</h1>
+      <p>Slow-cooked Nigerian classics, made fresh to order.</p>
+    </div>
+  </header>
+
+  <!-- ================= MENU =================
+       Pictures: menu1.jpg ... menu12.jpg (same folder). A missing file leaves the green gradient. -->
+  <section class="menu" aria-label="Menu">
+    <ul class="menu__grid">
+      <li class="dish">
+        <div class="dish__img"><img src="menu1.jpg" alt="Party Jollof &amp; Fried Plantain" loading="lazy" onerror="this.remove()"></div>
+        <div class="dish__body"><h3>Party Jollof &amp; Fried Plantain</h3><p>Smoky, tomato-rich jollof rice with sweet golden plantain.</p></div>
+      </li>
+      <li class="dish">
+        <div class="dish__img"><img src="menu2.jpg" alt="Egusi Soup &amp; Pounded Yam" loading="lazy" onerror="this.remove()"></div>
+        <div class="dish__body"><h3>Egusi Soup &amp; Pounded Yam</h3><p>Melon-seed soup with assorted meat, served with smooth pounded yam.</p></div>
+      </li>
+      <li class="dish">
+        <div class="dish__img"><img src="menu3.jpg" alt="Ofe Oha &amp; Pounded Yam" loading="lazy" onerror="this.remove()"></div>
+        <div class="dish__body"><h3>Ofe Oha &amp; Pounded Yam</h3><p>Traditional oha leaf soup, thickened with cocoyam and rich in flavour.</p></div>
+      </li>
+      <li class="dish">
+        <div class="dish__img"><img src="menu4.jpg" alt="Afang Soup &amp; Fufu" loading="lazy" onerror="this.remove()"></div>
+        <div class="dish__body"><h3>Afang Soup &amp; Fufu</h3><p>Afang and waterleaf slow-cooked with stockfish, crayfish and palm oil.</p></div>
+      </li>
+      <li class="dish">
+        <div class="dish__img"><img src="menu5.jpg" alt="Efo Riro &amp; Eba" loading="lazy" onerror="this.remove()"></div>
+        <div class="dish__body"><h3>Efo Riro &amp; Eba</h3><p>Spinach stew with peppers, locust beans and assorted meat.</p></div>
+      </li>
+      <li class="dish">
+        <div class="dish__img"><img src="menu6.jpg" alt="Ofada Rice &amp; Ayamase" loading="lazy" onerror="this.remove()"></div>
+        <div class="dish__body"><h3>Ofada Rice &amp; Ayamase</h3><p>Local ofada rice with fiery green pepper stew and tender meat.</p></div>
+      </li>
+      <li class="dish">
+        <div class="dish__img"><img src="menu7.jpg" alt="Amala, Gbegiri &amp; Ewedu" loading="lazy" onerror="this.remove()"></div>
+        <div class="dish__body"><h3>Amala, Gbegiri &amp; Ewedu</h3><p>Soft yam-flour amala with bean soup, jute leaf and stew.</p></div>
+      </li>
+      <li class="dish">
+        <div class="dish__img"><img src="menu8.jpg" alt="Banga Soup &amp; Starch" loading="lazy" onerror="this.remove()"></div>
+        <div class="dish__body"><h3>Banga Soup &amp; Starch</h3><p>Palm-fruit soup with fresh fish and spices, served with starch.</p></div>
+      </li>
+      <li class="dish">
+        <div class="dish__img"><img src="menu9.jpg" alt="Suya Platter" loading="lazy" onerror="this.remove()"></div>
+        <div class="dish__body"><h3>Suya Platter</h3><p>Thinly sliced grilled beef coated in spicy yaji, with onions and tomatoes.</p></div>
+      </li>
+      <li class="dish">
+        <div class="dish__img"><img src="menu10.jpg" alt="Goat Meat Pepper Soup" loading="lazy" onerror="this.remove()"></div>
+        <div class="dish__body"><h3>Goat Meat Pepper Soup</h3><p>A hot, aromatic broth of goat meat, utazi and traditional spices.</p></div>
+      </li>
+      <li class="dish">
+        <div class="dish__img"><img src="menu11.jpg" alt="Asun (Peppered Goat)" loading="lazy" onerror="this.remove()"></div>
+        <div class="dish__body"><h3>Asun (Peppered Goat)</h3><p>Chargrilled goat meat tossed in a smoky, spicy pepper sauce.</p></div>
+      </li>
+      <li class="dish">
+        <div class="dish__img"><img src="menu12.jpg" alt="Moi Moi" loading="lazy" onerror="this.remove()"></div>
+        <div class="dish__body"><h3>Moi Moi</h3><p>Steamed bean pudding with peppers, fish and egg.</p></div>
+      </li>
+    </ul>
+  </section>
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+  <nav aria-label="Footer">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+    <li><a href="menu.html">Menu</a></li>
+    <li><a href="index.html#reservations">Reservations</a></li>
+    <li><a href="index.html#order" class="nav__cta">Order</a></li>
+    <li><a href="index.html#care">Customer Care</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+    </ul>
+  </nav>
+  <p class="footer__copy">The HB Restaurant &amp; Lounge &bull; 2026</p>
+</footer>
+
+<script>
+/* dishes fade up as they scroll into view */
+(function(){
+  var cards = document.querySelectorAll('.dish');
+  if(!('IntersectionObserver' in window)){
+    Array.prototype.forEach.call(cards, function(c){ c.classList.add('is-in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('is-in'); io.unobserve(e.target); }
+    });
+  }, {threshold:.15});
+  Array.prototype.forEach.call(cards, function(c){ io.observe(c); });
+})();
+</script>
+
+</body>
+</html>
