@@ -48,6 +48,7 @@ a:focus-visible{outline:3px solid var(--brand-bright);outline-offset:2px}
 }
 .nav__inner{
   height:100%;background:var(--brand);
+  border-radius:var(--nav-end-r);   /* the rounded shape no longer depends on the intro animation having run */
   animation:
     navPop .9s cubic-bezier(.34,1.56,.64,1) .1s 1 both,
     navExpand 1.3s cubic-bezier(.65,0,.25,1) 1.55s 1 both;
@@ -67,27 +68,24 @@ a:focus-visible{outline:3px solid var(--brand-bright);outline-offset:2px}
   transition:background .2s ease,color .2s ease;
 }
 .nav a:hover{background:rgba(255,255,255,.14)}
-.nav a.nav__cta{padding:8px 9px;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.6)}
-/* ---- current-page pill: the black shape sits behind the link of the page you are on ---- */
-.nav a[aria-current="page"]{isolation:isolate;color:var(--btn-text)}
-.nav a[aria-current="page"]::before{
-  content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;
-  background:var(--btn-bg);view-transition-name:nav-pill;      /* same name on every page: the browser slides it */
+.nav a.nav__cta{padding:8px 9px;font-weight:800}
+/* ---- current-page pill: ONE black shape that slides behind the link of the page you are on ---- */
+.nav__inner{position:relative}
+.nav ul{position:relative;z-index:1}
+.nav__pill{
+  position:absolute;left:0;top:0;width:0;height:0;border-radius:var(--radius);
+  background:var(--btn-bg);pointer-events:none;opacity:0;
+  animation:navLinksIn .6s ease 2.25s 1 both;         /* appears with the links */
 }
-.nav a[aria-current="page"]:hover{color:var(--brand-bright)}
-
-/* ---- smooth page-to-page transition (Chrome / Edge / Safari 18.2+; other browsers just switch pages) ---- */
-@view-transition{navigation:auto}
-.nav{view-transition-name:site-nav}
-::view-transition-group(nav-pill){animation-duration:.5s;animation-timing-function:cubic-bezier(.65,0,.25,1)}
-::view-transition-old(nav-pill){display:none}
-::view-transition-new(nav-pill){animation:none;width:100%;height:100%}
-::view-transition-group(root){animation-duration:.3s}
-@media (prefers-reduced-motion:reduce){
-  ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}
+.nav__pill.on{
+  opacity:1;
+  transition:transform .5s cubic-bezier(.65,0,.25,1),width .5s cubic-bezier(.65,0,.25,1),height .5s cubic-bezier(.65,0,.25,1);
 }
+.nav a[aria-current="page"]{color:var(--btn-text)}
+.nav a[aria-current="page"]:hover{background:transparent;color:var(--brand-bright)}
 /* arriving from another page of the site: the navbar is already there, no drop-in intro */
-.no-intro .nav__inner,.no-intro .nav ul{animation:none}
+.no-intro .nav__inner,.no-intro .nav ul,.no-intro .nav__pill{animation:none}
+@media (prefers-reduced-motion:reduce){ .nav__pill{animation:none} .nav__pill.on{transition:none} }
 
 
 /* the circle drops in from above the top of the screen (like it came out of the address bar), then spreads */
@@ -443,14 +441,6 @@ section p{margin:0;color:#666}
 }
 /* ---- in-page navigation (Home <-> Menu without reloading) ---- */
 [hidden]{display:none!important}
-html.vt-fwd::view-transition-old(root){animation:vtOutL .3s cubic-bezier(.4,0,1,1) both}
-html.vt-fwd::view-transition-new(root){animation:vtInR .5s cubic-bezier(.22,1,.36,1) both}
-html.vt-back::view-transition-old(root){animation:vtOutR .3s cubic-bezier(.4,0,1,1) both}
-html.vt-back::view-transition-new(root){animation:vtInL .5s cubic-bezier(.22,1,.36,1) both}
-@keyframes vtOutL{to{opacity:0;transform:translateX(-48px)}}
-@keyframes vtInR{from{opacity:0;transform:translateX(48px)}}
-@keyframes vtOutR{to{opacity:0;transform:translateX(48px)}}
-@keyframes vtInL{from{opacity:0;transform:translateX(-48px)}}
 /* menu page already seen once: no second fade-in of its header */
 .seen .mh__brand,.seen .mh__title{animation:none}
 
@@ -478,7 +468,7 @@ html.vt-back::view-transition-new(root){animation:vtInL .5s cubic-bezier(.22,1,.
   transition:background .2s ease,color .2s ease;
 }
 .footer a:hover{background:rgba(255,255,255,.14)}
-.footer a.nav__cta{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.6)}
+.footer a.nav__cta{font-weight:800}
 .footer a:focus-visible{outline:3px solid #fff;outline-offset:2px}
 .footer__copy{
   margin:28px auto 0;padding-top:18px;max-width:900px;
@@ -493,6 +483,7 @@ html.vt-back::view-transition-new(root){animation:vtInL .5s cubic-bezier(.22,1,.
 <!-- ================= NAVBAR ================= -->
 <nav class="nav" aria-label="Main">
   <div class="nav__inner">
+  <span class="nav__pill" aria-hidden="true"></span>
   <ul>
     <li><a href="index.html" aria-current="page">Home</a></li>
     <li><a href="menu.html">Menu</a></li>
@@ -852,6 +843,24 @@ html.vt-back::view-transition-new(root){animation:vtInL .5s cubic-bezier(.22,1,.
     Array.prototype.forEach.call(cards, function(c){ io.observe(c); });
   }
 
+  var pill = document.querySelector('.nav__pill');
+  function placePill(instant){
+    var a = document.querySelector('.nav a[aria-current="page"]');
+    if(!pill || !a) return;
+    var r = a.getBoundingClientRect(), b = pill.parentNode.getBoundingClientRect();
+    if(instant) pill.style.transition = 'none';
+    pill.style.width  = r.width + 'px';
+    pill.style.height = r.height + 'px';
+    pill.style.transform = 'translate(' + (r.left - b.left) + 'px,' + (r.top - b.top) + 'px)';
+    if(instant){ void pill.offsetWidth; pill.style.transition = ''; }
+    pill.classList.add('on');
+  }
+  placePill(true);
+  window.addEventListener('load', function(){ placePill(true); });
+  window.addEventListener('resize', function(){ placePill(true); });
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ placePill(true); });
+  if(window.ResizeObserver) new ResizeObserver(function(){ placePill(true); }).observe(document.querySelector('.nav ul'));
+
   function setCurrent(link, on){
     if(!link) return;
     if(on) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
@@ -873,25 +882,35 @@ html.vt-back::view-transition-new(root){animation:vtInL .5s cubic-bezier(.22,1,.
       if(!o.pop){
         try{ history.pushState({view:view}, '', target + (o.hash || '')); }catch(e){ fallback(); return; }
       }
+      var fromEl = current === 'home' ? homeEl : menuEl;
+      var toEl   = view === 'home' ? homeEl : menuEl;
+      var dir    = view === 'menu' ? 1 : -1;                      // forward: old view leaves left, new one arrives from the right
+      var move   = !reduce.matches && fromEl.animate;
+      var leave  = null;
       function swap(){
         if(current === 'home') root.classList.add('no-intro');   // never replay the homepage intro
         if(current === 'menu') menuEl.classList.add('seen');
         homeEl.hidden = view !== 'home';
         menuEl.hidden = view !== 'menu';
         current = view;
-        setCurrent(homeLink, view === 'home');
-        setCurrent(menuLink, view === 'menu');
         document.title = view === 'menu' ? 'Menu | The HB Restaurant & Lounge' : homeTitle;
         var el = (o.hash && view === 'home') ? document.querySelector(o.hash) : null;
         if(el) el.scrollIntoView({behavior:'instant', block:'start'});
         else window.scrollTo({top: o.pop ? (saved[view] || 0) : 0, left:0, behavior:'instant'});
+        if(leave) leave.cancel();
       }
-      function done(){ busy = false; root.classList.remove('vt-fwd', 'vt-back'); }
-      if(document.startViewTransition && !reduce.matches){
-        root.classList.add(view === 'menu' ? 'vt-fwd' : 'vt-back');
-        var vt = document.startViewTransition(swap);
-        vt.finished.then(done, done);
-      } else { swap(); done(); }
+      setCurrent(homeLink, view === 'home');                      // the black pill starts sliding right away
+      setCurrent(menuLink, view === 'menu');
+      placePill();
+      if(move){
+        leave = fromEl.animate([{opacity:1, transform:'none'}, {opacity:0, transform:'translateX(' + (-48 * dir) + 'px)'}],
+                               {duration:240, easing:'cubic-bezier(.4,0,1,1)', fill:'forwards'});
+        leave.finished.then(function(){
+          swap();
+          return toEl.animate([{opacity:0, transform:'translateX(' + (48 * dir) + 'px)'}, {opacity:1, transform:'none'}],
+                              {duration:450, easing:'cubic-bezier(.22,1,.36,1)'}).finished;
+        }).then(function(){ busy = false; }, function(){ busy = false; });
+      } else { swap(); busy = false; }
     }).catch(function(){ fallback(); });
   }
 
