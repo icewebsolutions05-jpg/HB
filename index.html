@@ -1,0 +1,752 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The HB Restaurant & Lounge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap" rel="stylesheet">
+<style>
+/* ================= THEME TOKENS (dark mode can override these later) ================= */
+:root{
+  --bg:            #ffffff;
+  --text:          #111111;
+  --brand:         #1F6F3A;   /* emerald */
+  --brand-bright:  #2ECC71;   /* hover / highlights */
+  --brand-text:    #ffffff;   /* text on brand colour */
+  --btn-bg:        #0a0a0a;
+  --btn-text:      #ffffff;
+  --nav-h:         56px;      /* navbar height (mobile bar) */
+  --nav-end-r:     0px;       /* final corner radius of the navbar */
+  --radius:        999px;
+  --shadow:        0 8px 24px rgba(0,0,0,.18);
+  --font-body:     system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --font-head:     Georgia,"Times New Roman",serif;
+  --font-motto:    "Abril Fatface","Playfair Display",Georgia,"Times New Roman",serif;   /* bold display serif, like the HB lettering */
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:90px}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.5}
+a{color:inherit;text-decoration:none}
+a:focus-visible{outline:3px solid var(--brand-bright);outline-offset:2px}
+
+/* ================= NAVBAR =================
+   Intro: starts as a circle in the centre, then expands horizontally (same moment the
+   logo's text slides out) and the links fade in as it opens. Plays once.
+   Mobile: full-width bar across the top. Desktop: centred, curved, floating bar. */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:var(--nav-h);color:var(--brand-text);
+  filter:drop-shadow(0 6px 10px rgba(0,0,0,.2));
+}
+.nav__inner{
+  height:100%;background:var(--brand);
+  animation:
+    navPop .7s cubic-bezier(.34,1.56,.64,1) .1s 1 both,
+    navExpand 1.3s cubic-bezier(.65,0,.25,1) 1.55s 1 both;
+}
+.nav ul{
+  list-style:none;margin:0;padding:0 4px;height:100%;
+  display:flex;align-items:center;justify-content:space-between;gap:0;
+  overflow-x:auto;scrollbar-width:none;
+  animation:navLinksIn .6s ease 2.25s 1 both;
+}
+.nav ul::-webkit-scrollbar{display:none}
+.nav li{flex:0 0 auto}
+.nav a{
+  display:block;white-space:nowrap;
+  padding:8px 3.5px;border-radius:var(--radius);
+  font-weight:600;font-size:10.5px;
+  transition:background .2s ease,color .2s ease;
+}
+.nav a:hover{background:rgba(255,255,255,.14)}
+.nav a.nav__cta{
+  background:var(--btn-bg);color:var(--btn-text);padding:8px 9px;
+}
+.nav a.nav__cta:hover{background:#000;color:var(--brand-bright)}
+
+@keyframes navPop{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:scale(1)}}
+@keyframes navExpand{
+  from{clip-path:inset(0 calc(50% - var(--nav-h)/2) 0 calc(50% - var(--nav-h)/2) round calc(var(--nav-h)/2))}
+  to  {clip-path:inset(0 0 0 0 round var(--nav-end-r))}
+}
+@keyframes navLinksIn{from{opacity:0}to{opacity:1}}
+
+@media (max-width:349px){
+  .nav a{font-size:9.5px;padding:8px 2.5px}
+  .nav a.nav__cta{padding:8px 7px}
+}
+@media (min-width:450px){
+  .nav ul{padding:0 8px;gap:2px}
+  .nav a{font-size:12px;padding:10px 7px}
+  .nav a.nav__cta{padding:10px 14px}
+}
+@media (min-width:600px){
+  .nav ul{padding:0 10px;gap:4px}
+  .nav a{font-size:13.5px;padding:10px 12px}
+  .nav a.nav__cta{padding:10px 22px}
+}
+
+/* desktop: curved + centred, doesn't span the top */
+@media (min-width:900px){
+  :root{--nav-h:64px;--nav-end-r:32px}
+  .nav{
+    left:50%;right:auto;top:16px;
+    transform:translateX(-50%);
+    width:max-content;max-width:calc(100% - 32px);
+  }
+  .nav ul{padding:0 10px;gap:6px;justify-content:center;overflow:visible}
+  .nav a{font-size:15px;padding:11px 20px}
+  .nav a.nav__cta{padding:11px 26px}
+}
+
+/* ================= PLACEHOLDER SECTIONS (so links have somewhere to land) ================= */
+/* logo sits directly under the navbar: mobile bar is 56px tall, desktop pill ends at 80px */
+main{padding-top:var(--nav-h)}   /* mobile: hero starts right under the bar */
+@media (min-width:900px){ main{padding-top:0} }   /* desktop: hero runs behind the floating bar */
+
+/* ================= HERO =================
+   Layout (top to bottom): video/photo stuck to the top, then a band holding the 2 buttons.
+   The video keeps its own shape (9:16 until the file tells us otherwise); if it is shorter
+   than the screen the hero simply ends after the buttons. If it is taller it is cropped
+   so the buttons always stay in view.
+   The logo floats over the top of the video. On desktop it slides to the left once its
+   intro animation finishes (4.05s) and stays there. */
+.hero{
+  --actions-h:76px;
+  --logo-w:clamp(150px,42vw,190px);
+  --logo-h:calc(var(--logo-w) * 450 / 340);   /* the logo artwork is 340 x 450 */
+  --head-h:0px;               /* phones: height of the logo + motto strip that sits above the video */
+  --mf:16px;                  /* phones: motto font size (set below so the 4 lines are as tall as the logo) */
+  --logo-gap:48px;            /* distance from the left edge once the logo has slid over (desktop) */
+  position:relative;overflow:hidden;width:100%;background:var(--bg);
+}
+.hero__media{
+  position:relative;z-index:0;width:100%;
+  aspect-ratio:9/16;                                         /* JS swaps in the real video ratio */
+  margin-top:var(--head-h);                                  /* phones: the video starts BELOW the logo + motto strip */
+  max-height:calc(100svh - var(--nav-h) - var(--actions-h) - var(--head-h));
+  min-height:120px;
+  overflow:hidden;
+  background:var(--bg);
+}
+/* phones: the green gradient (shown when there are no photos) stays hidden while the logo intro plays,
+   then fades in once the logo has tucked into the corner (4.05s + 1.1s) */
+.hero__media::before{
+  content:"";position:absolute;inset:0;z-index:0;
+  background:linear-gradient(160deg,#f6f9f6 0%,#dcecdf 55%,#b7d8c1 100%);
+  opacity:0;animation:heroGradIn .7s ease 5.15s 1 both;
+}
+@keyframes heroGradIn{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){ .hero__media::before{animation:none;opacity:1} }
+/* ---- slideshow ---- */
+.slider{position:absolute;inset:0;overflow:hidden;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab}
+.slider:active{cursor:grabbing}
+.slider__track{display:flex;height:100%;transition:transform .6s cubic-bezier(.22,1,.36,1);will-change:transform}
+.slide{position:relative;flex:0 0 100%;height:100%}
+.slide img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
+.slider__btn{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:2;
+  display:none;align-items:center;justify-content:center;
+  width:40px;height:40px;padding:0 0 3px;border:0;border-radius:50%;
+  background:rgba(255,255,255,.88);color:#0a0a0a;font:400 26px/1 var(--font-body);
+  box-shadow:0 4px 12px rgba(0,0,0,.25);cursor:pointer;
+  transition:background .2s ease,color .2s ease;
+}
+.slider__btn:hover{background:var(--brand);color:#fff}
+.slider__btn:focus-visible,.slider__dot:focus-visible{outline:3px solid var(--brand-bright);outline-offset:2px}
+.slider__btn--prev{left:10px}
+.slider__btn--next{right:10px}
+.slider__dots{position:absolute;left:0;right:0;bottom:10px;z-index:2;display:none;justify-content:center;gap:7px}
+.slider__dot{width:9px;height:9px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.65);box-shadow:0 0 0 1px rgba(0,0,0,.25);cursor:pointer}
+.slider__dot.is-on{background:var(--brand-bright)}
+.slider.is-multi .slider__btn{display:flex}
+.slider.is-multi .slider__dots{display:flex}
+
+.hero__logo{
+  position:absolute;z-index:1;left:0;right:0;top:6px;
+  display:flex;justify-content:center;pointer-events:none;
+}
+
+/* PHONES / TABLETS: the intro plays big and centred over the video. Once it has finished (4.05s) the
+   logo shrinks and tucks into the top-left corner of the strip above the video, so it stops covering it. It scales around its own top-centre, then moves left;
+   % in translateX = the wrapper's width = the full hero width. Plays once and stays. */
+@media (max-width:899px){
+  .hero{--logo-s:.5;--logo-edge:12px;--head-h:calc(var(--logo-h) * var(--logo-s) + 16px);
+    /* motto = 4 lines that together are as tall as the shrunken logo, and never wider than the room beside it */
+    --mf:min(calc(var(--logo-h) * var(--logo-s) / 4.4), calc((100vw - var(--logo-w) * var(--logo-s) - 60px) / 9.4))}
+  .hero__logo{
+    transform-origin:50% 0;
+    animation:hbCorner 1.1s cubic-bezier(.65,0,.25,1) 4.05s 1 both;
+    will-change:transform;
+  }
+}
+/* ================= MOTTO =================
+   Phones: slides out sideways from behind the logo as it settles in the top-left corner, in the
+   strip above the video (bold black + emerald on white, with an emerald bar).
+   Desktop: slides down out of the bottom of the logo, as wide as the logo (see desktop block). */
+.hero__motto-row{
+  position:absolute;z-index:0;top:6px;                  /* z-index 0 = tucked behind the logo (z-index 1) */
+  height:calc(var(--logo-h) * var(--logo-s,.5));        /* same height as the shrunken logo, text centred on it */
+  display:flex;align-items:center;
+  left:calc(var(--logo-edge,12px) + var(--logo-w) * var(--logo-s,.5) + 10px);
+  right:12px;pointer-events:none;
+}
+.hero__motto{max-width:100%;overflow:hidden}            /* the clip window the text slides out of */
+.hero__motto p{
+  margin:0;display:block;padding:0 0 0 10px;
+  border-left:4px solid #0a0a0a;
+  font:900 var(--mf)/1.1 var(--font-motto);font-synthesis:none;letter-spacing:.01em;
+  color:#0a0a0a;text-align:left;
+  animation:hbMottoX 1s cubic-bezier(.22,1,.36,1) 4.35s 1 both;
+}
+.hero__motto .m1{display:block;color:var(--brand);text-transform:uppercase;letter-spacing:.03em}   /* same green as the navbar */
+.hero__motto .m2{display:block}
+@keyframes hbMottoX{from{transform:translateX(-115%)}to{transform:none}}
+@keyframes hbMottoY{from{transform:translateY(-115%)}to{transform:none}}
+
+@keyframes hbCorner{
+  from{transform:translateX(0) scale(1)}
+  to  {transform:translateX(calc(-50% + var(--logo-edge) + var(--logo-w) * var(--logo-s) / 2)) scale(var(--logo-s))}
+}
+.hb-logo{
+  display:block;width:var(--logo-w);height:auto;overflow:visible;
+  /* soft white glow keeps the black logo readable over video */
+  filter:drop-shadow(0 0 6px rgba(255,255,255,.85)) drop-shadow(0 0 14px rgba(255,255,255,.55));
+}
+
+.hero__actions{
+  position:relative;z-index:2;min-height:var(--actions-h);
+  display:flex;align-items:center;justify-content:flex-end;gap:8px;
+  padding:14px 14px 18px;
+  animation:heroActionsIn .7s ease 3s 1 both;
+}
+.btn{
+  display:inline-block;white-space:nowrap;
+  border-radius:var(--radius);font-weight:700;font-size:13px;
+  padding:12px 16px;box-shadow:0 6px 16px rgba(0,0,0,.25);
+  transition:background .2s ease,color .2s ease,transform .2s ease;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn--dark{background:var(--btn-bg);color:var(--btn-text)}
+.btn--dark:hover{background:#000;color:var(--brand-bright)}
+.btn--green{background:var(--brand);color:#fff}
+.btn--green:hover{background:var(--brand-bright);color:#0a0a0a}
+@keyframes heroActionsIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+@media (min-width:600px){
+  .hero{--logo-w:260px;--actions-h:84px}
+  .btn{font-size:14px;padding:13px 20px}
+}
+@media (min-width:900px){
+  .hero{
+    /* biggest logo that still lets logo + motto + buttons fit on one screen */
+    --logo-w:clamp(260px,min(30vw,calc((100svh - 208px) / 1.4885)),480px);
+    --motto-h:calc(var(--logo-w) * .165);       /* room for the motto under the logo */
+    --lock-h:calc(var(--logo-h) + var(--motto-h));   /* logo + motto = the video canvas height */
+    --actions-h:96px;
+    --canvas-gap:40px;            /* space between the logo and the video canvas */
+    --canvas-edge:48px;           /* space between the canvas and the right edge */
+  }
+  /* desktop: the stage is as tall as the screen minus the buttons band; the mobile video is off */
+  .hero__media{
+    aspect-ratio:auto;max-height:none;min-height:0;
+    height:calc(86px + var(--lock-h) + 20px);       /* just tall enough for logo + motto */
+    background:var(--bg);
+  }
+  .slider--m{display:none}
+  .hero__media::before{display:none}   /* desktop: the canvas has its own gradient */
+  .hero__logo{
+    top:86px;
+    /* right after the intro finishes (4.05s) glide to the left edge and stay */
+    animation:hbGlideLeft 1.1s cubic-bezier(.65,0,.25,1) 4.05s 1 both;
+    will-change:transform;
+  }
+
+  /* 16:9 canvas to the right of the logo. The video fills it and is cropped to fit. */
+  .hero__canvas{
+    display:flex;align-items:center;justify-content:center;
+    position:absolute;z-index:0;
+    top:86px;height:var(--lock-h);                  /* exactly logo + motto high: the video is level with both */
+    left:calc(var(--logo-gap) + var(--logo-w) + var(--canvas-gap));
+    right:var(--canvas-edge);
+    max-width:calc(var(--lock-h) * 16 / 9);   /* never wider than a 16:9 picture that tall, so it stays right beside the logo */
+    container-type:size;                    /* lets the frame be "as big as fits, always 16:9" */
+  }
+  .hero__frame{
+    position:relative;overflow:hidden;
+    /* --fr = the canvas shape: 16:9 by default; a narrower video (4:3, square, portrait...)
+       makes the canvas narrower to match, so it is never cropped and stays centred. */
+    width:min(100cqw, calc(100cqh * var(--fr, 1.7778)));
+    aspect-ratio:var(--fr, 1.7778);
+    border-radius:24px;
+    background:linear-gradient(160deg,#f6f9f6 0%,#dcecdf 55%,#b7d8c1 100%);   /* fallback if there are no herod images */
+    box-shadow:0 18px 40px rgba(0,0,0,.22);
+    /* fades in and slides up at the same moment the logo glides left */
+    animation:hbCanvasIn 1.1s cubic-bezier(.65,0,.25,1) 4.05s 1 both;
+  }
+  .hero__actions{padding:20px 32px 24px;gap:12px}
+
+  /* motto: sits right under the logo, glides left with it, and slides down out of the logo's bottom */
+  .hero__motto-row{
+    left:0;right:0;top:calc(86px + var(--logo-h));height:auto;
+    display:flex;align-items:flex-start;justify-content:center;
+    animation:hbGlideLeft 1.1s cubic-bezier(.65,0,.25,1) 4.05s 1 both;
+    will-change:transform;
+  }
+  .hero__motto{width:var(--logo-w);max-width:none;height:var(--motto-h)}
+  .hero__motto p{
+    border-left:0;padding:calc(var(--logo-w) * .03) 0 0;
+    font-size:calc(var(--logo-w) * .05);line-height:1.25;text-align:center;
+    animation:hbMottoY 1.1s cubic-bezier(.65,0,.25,1) 4.05s 1 both;
+  }
+  .hero__motto .m1{font-size:1.1em;letter-spacing:.04em}
+  .hero__motto .mb{display:none}   /* desktop: two lines, no forced breaks */
+}
+@media (max-width:899px){ .hero__canvas{display:none} }   /* phones: no canvas */
+@keyframes hbCanvasIn{
+  from{opacity:0;transform:translateY(64px)}
+  to  {opacity:1;transform:none}
+}
+/* % = this wrapper's own width (the full hero), so this moves the logo's centre to the left */
+@keyframes hbGlideLeft{
+  from{transform:translateX(0)}
+  to  {transform:translateX(calc(-50% + var(--logo-w)/2 + var(--logo-gap)))}
+}
+
+/* ================= HERO LOGO (plays ONCE, then rests) ================= */
+.hb-fork-fade{animation:hbForkFade 1s ease-out 1 both}
+.hb-mover{animation:hbMove 2.7s 1 both;transform-origin:0 0}
+.hb-leaf{transform-box:fill-box;transform-origin:center;
+         animation:hbLeafPop .7s cubic-bezier(.34,1.56,.64,1) .8s 1 both}
+.hb-text-slide{animation:hbSlide 1.3s cubic-bezier(.22,1,.36,1) 1.55s 1 both}
+.hb-leaf-spin{transform-box:fill-box;transform-origin:center;
+              animation:hbSpin 1.1s cubic-bezier(.65,0,.35,1) 2.95s 1 both}
+
+@keyframes hbSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes hbForkFade{from{opacity:0}to{opacity:1}}
+@keyframes hbLeafPop{
+  from{opacity:0;transform:scale(0) rotate(-45deg)}
+  to  {opacity:1;transform:scale(1) rotate(0)}
+}
+@keyframes hbMove{
+  0%,52%{
+    transform:translate(12px,115px) translate(350px,201px) scale(1.3) translate(-350px,-201px);
+    animation-timing-function:cubic-bezier(.65,0,.25,1);
+  }
+  100%{
+    transform:translate(0px,0px) translate(350px,201px) scale(1) translate(-350px,-201px);
+  }
+}
+@keyframes hbSlide{from{transform:translateY(-235px)}to{transform:translateY(0)}}
+
+@media (prefers-reduced-motion:reduce){
+  .hb-fork-fade,.hb-mover,.hb-leaf,.hb-text-slide,.hb-leaf-spin,
+  .nav__inner,.nav ul,.hero__actions{animation:none}
+}
+@media (max-width:899px) and (prefers-reduced-motion:reduce){
+  .hero__logo{animation:none;transform:translateX(calc(-50% + var(--logo-edge) + var(--logo-w) * var(--logo-s) / 2)) scale(var(--logo-s))}
+  .hero__motto p{animation:none}
+}
+@media (min-width:900px) and (prefers-reduced-motion:reduce){
+  .hero__frame,.hero__motto p{animation:none}
+  .hero__motto-row{animation:none;transform:translateX(calc(-50% + var(--logo-w)/2 + var(--logo-gap)))}
+  .hero__logo{animation:none;transform:translateX(calc(-50% + var(--logo-w)/2 + var(--logo-gap)))}
+}
+/* ================= ABOUT =================
+   Desktop: story on the left as short lines that slide in one by one, a 2 x 3 grid of square picture
+   slots on the right, exactly as tall as the text (JS sets --gw). Phones: text first, grid below. */
+.about{min-height:0;padding:56px 20px}
+.about__wrap{max-width:1100px;margin:0 auto;display:grid;gap:32px}
+.about__text{font-size:17px;line-height:1.55;color:#222}
+.about__text h2{margin:0 0 14px;font-size:clamp(28px,4vw,40px);color:var(--brand);line-height:1.1}
+.about__line{
+  display:block;opacity:0;transform:translateX(-48px);
+  transition:opacity .6s ease,transform .7s cubic-bezier(.22,1,.36,1);
+  transition-delay:calc(var(--i,0) * 90ms);
+}
+.about__line.gap{margin-top:1.1em}
+.about__grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.about__cell{
+  position:relative;aspect-ratio:1;border-radius:14px;overflow:hidden;
+  background:linear-gradient(160deg,#f6f9f6 0%,#dcecdf 55%,#b7d8c1 100%);   /* shows until pic1.jpg ... pic6.jpg exist */
+  opacity:0;transform:scale(.92);
+  transition:opacity .6s ease,transform .7s cubic-bezier(.22,1,.36,1);
+  transition-delay:calc(var(--i,0) * 90ms + 500ms);
+}
+.about__cell img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.about.is-in .about__line,.about.is-in .about__cell{opacity:1;transform:none}
+@media (min-width:900px){
+  .about{padding:80px 48px}
+  .about__wrap{grid-template-columns:1fr auto;align-items:start;gap:56px}
+  .about__grid{width:var(--gw,320px)}
+}
+@media (prefers-reduced-motion:reduce){
+  .about__line,.about__cell{opacity:1;transform:none;transition:none}
+}
+/* ================= CONTACT ================= */
+.contact{min-height:0;padding:56px 20px;text-align:center}
+.contact__wrap{max-width:640px;margin:0 auto}
+.contact h2{margin:0 0 20px;font-size:clamp(28px,4vw,40px);color:var(--brand);line-height:1.1}
+.contact__list{list-style:none;margin:0;padding:0;display:grid;gap:14px;justify-items:center}
+.contact__list li{display:flex;align-items:flex-start;justify-content:center;gap:10px;font-size:17px;line-height:1.4;color:#222}
+.contact__list a{color:#222;border-bottom:1px solid transparent;transition:color .2s ease,border-color .2s ease}
+.contact__list a:hover{color:var(--brand);border-bottom-color:var(--brand)}
+.contact__ico{flex:0 0 22px;width:22px;height:22px;margin-top:1px;fill:none;stroke:var(--brand);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.contact__social{display:flex;justify-content:center;gap:12px;margin-top:26px}
+.social{
+  display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;
+  background:var(--brand);color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.2);
+  transition:background .2s ease,color .2s ease,transform .2s ease;
+}
+.social svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.social:hover{background:var(--brand-bright);color:#0a0a0a;transform:translateY(-2px)}
+.social:focus-visible{outline:3px solid var(--brand-bright);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){ .social,.contact__list a{transition:none} }
+section{min-height:70vh;padding:48px 20px;border-bottom:1px solid #eee}
+section h2{margin:0 0 8px;font-family:var(--font-head)}
+section p{margin:0;color:#666}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .nav a{transition:none}
+}
+/* ================= FOOTER ================= */
+.footer{
+  background:var(--brand);color:var(--brand-text);
+  padding:36px 16px calc(24px + env(safe-area-inset-bottom,0px));
+  text-align:center;
+}
+.footer ul{list-style:none;margin:0 auto;padding:0;max-width:900px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px 8px}
+.footer a{
+  display:block;padding:10px 16px;border-radius:var(--radius);
+  font-weight:600;font-size:14px;white-space:nowrap;
+  transition:background .2s ease,color .2s ease;
+}
+.footer a:hover{background:rgba(255,255,255,.14)}
+.footer a.nav__cta{background:var(--btn-bg);color:var(--btn-text)}
+.footer a.nav__cta:hover{background:#000;color:var(--brand-bright)}
+.footer a:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.footer__copy{
+  margin:28px auto 0;padding-top:18px;max-width:900px;
+  border-top:1px solid rgba(255,255,255,.28);
+  font-size:13px;letter-spacing:.02em;
+}
+@media (prefers-reduced-motion:reduce){ .footer a{transition:none} }
+</style>
+</head>
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<nav class="nav" aria-label="Main">
+  <div class="nav__inner">
+  <ul>
+    <li><a href="#home">Home</a></li>
+    <li><a href="#menu">Menu</a></li>
+    <li><a href="#reservations">Reservations</a></li>
+    <li><a href="#order" class="nav__cta">Order</a></li>
+    <li><a href="#care">Customer Care</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  </div>
+</nav>
+
+<main id="home">
+  <!-- ================= HERO ================= -->
+  <div class="hero">
+    <!-- HERO SLIDESHOW (images sit in the same folder as this page):
+         - phones  : herom1.jpg, herom2.jpg, herom3.jpg ... (9:16 works well), stuck to the top, buttons underneath
+         - desktop : herod1.jpg, herod2.jpg ... shown in a 16:9 canvas on the right of the logo (cropped to fit)
+         Numbers are read in order and the search stops at the first one that is missing.
+         Only the set for the current screen is downloaded. If there are no images, the soft green gradient stays. -->
+    <div class="hero__media" id="heroMedia">
+      <div class="slider slider--m" id="sliderM" role="region" aria-roledescription="carousel" aria-label="Signature dishes"></div>
+
+      <div class="hero__canvas">
+        <div class="hero__frame" id="heroFrame">
+          <div class="slider" id="sliderD" role="region" aria-roledescription="carousel" aria-label="Signature dishes"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGO: floats over the top of the video; on desktop it glides left after its intro -->
+    <div class="hero__logo">
+    <svg class="hb-logo" xmlns="http://www.w3.org/2000/svg" viewBox="191 136 340 450" role="img" aria-label="The HB Restaurant &amp; Lounge">
+      <defs>
+        <!-- Only shows what is below the fork's base, so the text appears to emerge from under it -->
+        <clipPath id="hbReveal"><rect x="0" y="301" width="720" height="500"/></clipPath>
+      </defs>
+
+      <!-- Static offset so the finished logo sits centred -->
+      <g transform="translate(-2 44)">
+        <g class="hb-mover">
+
+          <!-- TEXT (behind the fork, clipped below its base) -->
+          <g clip-path="url(#hbReveal)">
+            <g class="hb-text-slide" fill="#0a0a0a">
+
+              <!-- "the" (traced from the original logo) -->
+              <path fill-rule="evenodd" d="M398.4 332.6 394.1 335.9 390.1 340.4 387.4 345.9 386.6 349.4 386.6 354.6 387.9 359.9 390.9 365.1 393.9 368.4 395.9 370.1 400.9 373.1 406.9 375.4 408.6 375.4 409.9 375.9 412.1 376.1 418.6 376.1 421.9 375.4 423.4 375.4 427.6 373.9 433.4 370.6 437.4 366.9 439.1 364.6 439.1 363.9 435.9 360.4 435.1 360.1 432.1 363.6 429.4 366.1 425.1 368.4 419.9 369.9 417.9 370.1 412.6 370.1 409.6 369.4 405.4 366.9 402.4 363.9 401.1 362.1 398.4 355.9 398.1 347.6 398.9 344.9 400.4 341.6 403.9 337.6 406.1 336.1 408.6 335.1 411.9 334.4 417.1 334.6 419.4 335.4 421.6 336.6 424.4 339.6 425.9 342.9 425.9 344.6 425.1 345.1 412.9 345.4 408.9 346.6 406.4 348.1 403.9 350.9 402.9 352.9 402.4 355.1 402.4 357.1 402.9 358.9 404.4 360.9 407.1 362.1 409.1 362.1 410.1 361.6 410.6 353.9 412.6 351.9 413.6 351.6 433.9 351.9 435.9 351.1 437.4 349.4 437.9 347.6 437.4 342.1 434.9 337.1 431.6 333.6 429.1 331.9 425.4 330.1 416.6 328.4 412.1 328.4 406.4 329.4 403.1 330.4Z M327.9 313.4 327.6 316.6 328.1 317.6 328.6 317.9 333.4 317.9 334.6 319.1 334.6 363.9 334.9 364.1 334.6 378.6 334.9 379.1 334.6 380.9 333.6 381.9 327.9 381.9 326.9 382.4 326.6 385.9 327.4 387.1 352.9 387.4 354.1 386.6 354.4 383.4 353.6 382.1 352.9 381.9 347.9 382.1 346.4 381.1 346.4 350.4 347.4 345.1 350.1 339.9 353.9 336.1 358.4 334.4 362.4 334.4 364.4 335.6 366.4 338.4 367.1 341.9 367.4 364.9 368.1 368.9 369.6 373.4 370.6 375.4 373.6 379.6 379.4 384.9 383.6 387.4 390.6 389.9 395.9 390.9 412.1 390.6 418.6 389.1 424.1 387.4 426.9 386.1 434.9 381.6 439.4 378.1 439.6 377.6 439.4 376.1 437.9 374.4 436.6 373.9 435.9 374.1 432.9 376.6 425.9 380.4 419.4 382.6 411.4 384.1 400.4 383.9 397.9 383.1 396.4 383.1 388.9 380.1 385.9 378.1 383.1 375.6 381.4 373.4 379.1 368.4 378.6 364.6 378.6 342.6 377.4 337.6 375.4 334.4 372.9 331.9 369.4 329.9 363.6 328.4 359.9 328.4 353.4 330.1 350.1 331.9 347.4 334.4 346.4 334.6 345.9 334.1 346.1 327.6 346.4 327.4 346.4 313.1 346.1 312.9 346.4 309.1 345.6 307.9 342.1 307.6 341.1 308.1 340.9 310.9 339.4 312.4 336.1 312.9 329.1 312.6Z M294.1 306.9 293.4 307.6 293.4 319.6 292.6 323.1 290.1 327.4 288.6 328.9 286.1 330.1 276.4 330.1 275.4 330.9 275.4 336.1 276.1 337.1 283.4 337.1 283.6 337.4 285.6 337.1 286.6 337.4 287.4 338.4 287.4 374.6 288.9 379.4 290.6 381.9 292.4 383.6 295.6 385.6 298.1 386.6 303.6 387.6 309.4 387.4 311.1 386.9 316.1 384.1 318.9 381.1 321.4 376.1 321.4 373.6 321.6 373.4 321.4 368.4 318.4 362.4 315.9 359.9 313.6 358.4 307.9 356.1 301.4 356.1 300.6 357.1 300.6 357.9 301.6 361.4 303.1 362.9 304.6 363.6 308.1 364.1 311.9 365.6 314.4 368.1 315.1 369.6 315.6 372.9 315.1 375.4 314.1 377.4 311.6 379.9 309.9 380.9 307.9 381.4 303.9 381.4 301.6 380.6 300.1 379.4 298.9 376.9 298.9 338.4 299.6 337.4 300.6 337.1 320.6 337.1 321.4 336.4 321.4 330.9 320.6 330.1 299.9 330.1 299.1 329.4 298.9 328.1 298.9 323.4 299.1 323.1 298.9 322.1 298.9 309.4 299.1 309.1 298.9 307.4 298.4 306.9Z"/>
+
+              <!-- "HB" (traced from the original logo) -->
+              <path fill-rule="evenodd" d="M260.4 396.9 260.1 397.1 260.1 401.6 260.6 402.1 266.6 402.1 267.9 403.1 267.9 496.9 266.9 497.9 260.6 497.9 260.1 498.4 260.1 502.9 260.4 503.1 301.6 503.1 301.9 502.6 301.9 498.4 301.1 497.9 295.4 497.9 294.6 497.6 293.9 496.4 294.1 495.6 294.1 455.1 293.9 454.9 294.1 453.9 294.9 453.1 329.1 453.1 329.9 453.6 330.1 454.6 329.9 456.4 329.9 495.6 330.1 496.4 329.9 497.1 328.6 497.9 322.6 497.9 322.1 498.4 322.4 503.1 363.6 503.1 363.9 502.9 363.9 498.4 363.4 497.9 357.4 497.9 356.6 497.6 356.1 496.9 356.1 403.1 357.4 402.1 363.4 402.1 363.9 401.6 363.9 397.1 363.6 396.9 322.6 396.9 322.1 397.4 322.1 401.6 322.6 402.1 328.4 402.1 329.4 402.4 330.1 403.6 330.1 443.6 329.9 443.9 330.1 446.4 329.9 446.9 328.9 447.6 295.1 447.6 293.9 446.4 294.1 445.4 294.1 404.4 293.9 403.6 294.1 402.9 295.4 402.1 301.4 402.1 301.9 401.6 301.9 397.4 301.4 396.9Z M450.1 401.6 447.1 399.6 442.4 397.4 437.9 396.1 429.1 395.1 422.9 395.4 420.4 395.9 414.1 396.1 404.9 397.1 388.6 397.1 388.4 396.9 373.4 396.9 373.1 397.1 373.1 401.6 373.6 402.1 379.6 402.1 380.9 403.1 380.9 496.9 379.9 497.9 373.6 497.9 373.1 498.1 372.9 502.4 373.4 503.1 423.1 503.1 423.4 502.9 430.1 502.6 433.4 501.9 435.1 501.9 438.4 500.9 439.6 500.9 442.1 499.9 443.1 499.9 448.4 497.9 454.9 494.1 456.9 492.6 460.1 489.4 463.9 483.6 464.1 482.4 464.9 481.1 466.1 475.4 465.9 467.1 464.6 463.1 462.9 459.6 460.6 456.6 458.4 454.4 455.6 452.4 451.4 450.1 449.4 449.4 444.4 448.4 441.9 448.4 441.6 448.1 434.1 448.4 433.9 448.1 434.9 447.1 438.4 445.9 442.6 443.6 448.1 439.9 452.9 435.1 454.6 432.6 456.6 428.6 457.9 424.4 458.4 419.9 457.9 414.1 456.9 410.6 455.4 407.6 453.9 405.4Z M407.6 453.9 408.4 453.6 417.4 453.9 421.6 454.6 425.6 455.9 427.9 456.9 431.1 459.1 433.6 461.6 435.9 465.1 437.1 468.1 438.1 473.6 438.1 479.4 437.4 483.4 436.4 486.1 434.4 489.4 431.4 492.4 428.6 494.1 423.6 496.1 422.6 496.1 420.6 496.9 412.1 497.9 407.6 497.9 407.1 497.4 406.9 496.6 406.9 456.1 407.1 455.9 406.9 454.6Z M407.6 402.1 410.1 402.1 416.1 403.1 421.1 405.4 423.1 406.9 425.6 409.4 428.1 413.4 429.1 416.1 430.1 421.6 430.1 428.6 429.6 431.9 428.1 436.4 426.1 439.9 422.6 443.4 418.4 445.9 415.6 446.9 409.4 448.1 407.6 448.1 406.9 447.4 406.9 403.1Z"/>
+
+              <!-- RESTAURANT & LOUNGE -->
+              <text x="258" y="527" font-family="Poppins, Montserrat, 'Helvetica Neue', Arial, sans-serif"
+                    font-size="18" font-weight="500" textLength="204" lengthAdjust="spacingAndGlyphs">RESTAURANT &amp; LOUNGE</text>
+            </g>
+          </g>
+
+          <!-- FORK (on top) -->
+          <g class="hb-fork-fade">
+            <g fill="#0a0a0a">
+              <rect x="287" y="175" width="29" height="62"/>
+              <rect x="338" y="145" width="24" height="92"/>
+              <rect x="385" y="102" width="28" height="135"/>
+              <path d="M287 200 H316 V212 Q327 236 338 212 V200 H362 V212 Q373.5 236 385 212 V200 H413
+                       V228 C413 262 388 283 365 286 V300 H335 V286 C312 283 287 262 287 228 Z"/>
+            </g>
+            <g class="hb-leaf-spin">
+              <path class="hb-leaf" fill="#1f6f1f"
+                    d="M351 100 Q353 112 365 115 Q353 119 351 131 Q349 119 337 115 Q349 112 351 100 Z"/>
+            </g>
+          </g>
+
+        </g>
+      </g>
+    </svg>
+    </div>
+
+    <!-- MOTTO (same words as the TikTok bio): slides out of the logo after its intro -->
+    <div class="hero__motto-row">
+      <div class="hero__motto"><p><span class="m1">Authentic<br class="mb"> Nigerian food</span> <span class="m2">that tastes like<br class="mb"> it&rsquo;s origin</span></p></div>
+    </div>
+
+    <!-- BUTTONS: sit in the band directly under the video -->
+    <div class="hero__actions">
+      <a class="btn btn--dark" href="#order">Order Now</a>
+      <a class="btn btn--green" href="#reservations">Book a Table</a>
+    </div>
+  </div>
+  <section id="about" class="about">
+    <div class="about__wrap" id="aboutWrap">
+      <div class="about__text" id="aboutText">
+        <h2>Our Story</h2>
+        <span class="about__line">The HB began with a simple idea:</span>
+        <span class="about__line">food should taste like where it comes from.</span>
+        <span class="about__line">Every pot of jollof, every skewer of suya</span>
+        <span class="about__line">and every bowl of egusi starts with the spices</span>
+        <span class="about__line">and slow cooking our families have trusted</span>
+        <span class="about__line">for generations.</span>
+        <span class="about__line gap">We opened our doors in Lagos</span>
+        <span class="about__line">to serve that taste in the city that inspired it.</span>
+        <span class="about__line">By day, a table full of proper Nigerian cooking.</span>
+        <span class="about__line">By night, the music turns up, the lounge fills,</span>
+        <span class="about__line">and the same plates travel around</span>
+        <span class="about__line">with a drink in hand.</span>
+        <span class="about__line gap">Come hungry. Come with friends.</span>
+        <span class="about__line">Taste where it all began.</span>
+      </div>
+      <div class="about__grid" aria-label="Photos of The HB">
+        <div class="about__cell" data-n="1"></div>
+        <div class="about__cell" data-n="2"></div>
+        <div class="about__cell" data-n="3"></div>
+        <div class="about__cell" data-n="4"></div>
+        <div class="about__cell" data-n="5"></div>
+        <div class="about__cell" data-n="6"></div>
+      </div>
+    </div>
+  </section>
+  <section id="contact" class="contact">
+    <div class="contact__wrap">
+      <h2>Contact</h2>
+      <ul class="contact__list">
+        <li>
+          <svg class="contact__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.6"/></svg>
+          <a href="https://www.google.com/maps/search/?api=1&query=The+HB+Restaurant+and+Lounge+Orchid+Road+Lekki+Phase+1+Lagos" target="_blank" rel="noopener">Orchid Road, Lekki Phase 1, Lagos</a>
+        </li>
+        <li>
+          <svg class="contact__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>
+          <span><a href="tel:+2348167818378">08167818378</a> &nbsp;|&nbsp; <a href="tel:+2349122049496">09122049496</a></span>
+        </li>
+      </ul>
+      <div class="contact__social">
+        <!-- TikTok -->
+        <a class="social" href="https://www.tiktok.com/@thehbrestaurantandlounge" target="_blank" rel="noopener" aria-label="The HB on TikTok">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" stroke="none" d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+        </a>
+        <!-- Instagram: replace href="#" with the full profile link -->
+        <a class="social" href="#" target="_blank" rel="noopener" aria-label="The HB on Instagram">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5.2"/><circle cx="12" cy="12" r="4.1"/><circle cx="17.3" cy="6.7" r="1.1" fill="currentColor" stroke="none"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+  <nav aria-label="Footer">
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#menu">Menu</a></li>
+      <li><a href="#reservations">Reservations</a></li>
+      <li><a href="#order" class="nav__cta">Order</a></li>
+      <li><a href="#care">Customer Care</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+  <p class="footer__copy">The HB Restaurant &amp; Lounge &bull; 2026</p>
+</footer>
+
+
+<script>
+/* Hero slideshow. Phones use herom1.jpg, herom2.jpg ... ; desktop uses herod1.jpg, herod2.jpg ...
+   Images are looked up in order and the search stops at the first number that doesn't exist.
+   Slides advance on their own every few seconds; swipe, the arrow buttons or the dots take over,
+   and the timer starts again after the last input. Only the set for the current screen is loaded. */
+(function(){
+  var mq     = window.matchMedia('(min-width:900px)');
+  var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var INTERVAL = 5000;                                   // ms between automatic slides
+
+  function Slider(root, base, onFirst, firstDelay){
+    root.innerHTML =
+      '<div class="slider__track"></div>' +
+      '<button type="button" class="slider__btn slider__btn--prev" aria-label="Previous dish">&#8249;</button>' +
+      '<button type="button" class="slider__btn slider__btn--next" aria-label="Next dish">&#8250;</button>' +
+      '<div class="slider__dots"></div>';
+    var track = root.querySelector('.slider__track');
+    var dotsEl = root.querySelector('.slider__dots');
+    var slides = [], dots = [], i = 0, timer = null, loaded = false, started = false;
+
+    function go(n){
+      if(!slides.length) return;
+      i = (n + slides.length) % slides.length;
+      track.style.transform = 'translateX(' + (-i * 100) + '%)';
+      for(var d = 0; d < dots.length; d++) dots[d].classList.toggle('is-on', d === i);
+    }
+    function stop(){ clearInterval(timer); timer = null; }
+    function start(){
+      stop();
+      if(reduce || slides.length < 2 || document.hidden) return;
+      timer = setInterval(function(){ go(i + 1); }, INTERVAL);
+    }
+    function input(n){ go(n); start(); }                 // any user action: move, then restart the idle timer
+
+    function add(img, num){
+      var s = document.createElement('div');
+      s.className = 'slide';
+      img.alt = 'Signature dish ' + num; img.draggable = false;
+      s.appendChild(img); track.appendChild(s); slides.push(s);
+      var dot = document.createElement('button');
+      dot.type = 'button'; dot.className = 'slider__dot'; dot.setAttribute('aria-label', 'Go to dish ' + num);
+      dot.addEventListener('click', function(){ input(num - 1); });
+      dotsEl.appendChild(dot); dots.push(dot);
+      if(slides.length === 1){ go(0); if(onFirst) onFirst(img); }
+      if(slides.length === 2){
+        root.classList.add('is-multi');
+        if(!started){ started = true; setTimeout(start, firstDelay || 0); }
+      }
+    }
+    function probe(k){                                   // try base1.jpg, base2.jpg ... until one is missing
+      var im = new Image();
+      im.onload  = function(){ add(im, k); probe(k + 1); };
+      im.onerror = function(){};                         // not found: stop looking
+      im.src = base + k + '.jpg';
+    }
+    function load(){ if(loaded) return; loaded = true; probe(1); }
+
+    root.querySelector('.slider__btn--prev').addEventListener('click', function(){ input(i - 1); });
+    root.querySelector('.slider__btn--next').addEventListener('click', function(){ input(i + 1); });
+
+    // swipe / drag
+    var sx = 0, dx = 0, down = false, captured = false;
+    root.addEventListener('pointerdown', function(e){
+      if(e.target.closest('button') || slides.length < 2) return;
+      down = true; captured = false; sx = e.clientX; dx = 0; stop();
+    });
+    root.addEventListener('pointermove', function(e){
+      if(!down) return;
+      dx = e.clientX - sx;
+      if(!captured && Math.abs(dx) > 6){ captured = true; try{ root.setPointerCapture(e.pointerId); }catch(_){} track.style.transition = 'none'; }
+      if(captured) track.style.transform = 'translateX(calc(' + (-i * 100) + '% + ' + dx + 'px))';
+    });
+    function release(){
+      if(!down) return;
+      down = false; track.style.transition = '';
+      var limit = Math.min(80, root.offsetWidth * 0.18);
+      if(dx < -limit) input(i + 1); else if(dx > limit) input(i - 1); else { go(i); start(); }
+    }
+    root.addEventListener('pointerup', release);
+    root.addEventListener('pointercancel', release);
+
+    document.addEventListener('visibilitychange', function(){ if(document.hidden) stop(); else start(); });
+    return { load: load, start: start, stop: stop };
+  }
+
+  var box   = document.getElementById('heroMedia');
+  var frame = document.getElementById('heroFrame');
+
+  // phones: the box takes the shape of the first photo (9:16 until it has loaded)
+  var sm = Slider(document.getElementById('sliderM'), 'herom', function(img){
+    if(img.naturalWidth && img.naturalHeight) box.style.aspectRatio = img.naturalWidth + ' / ' + img.naturalHeight;
+  }, 0);
+
+  // desktop: canvas is 16:9 at most; a narrower photo shrinks it to its own shape. The first
+  // automatic slide waits until the canvas has finished sliding in (about 5s after load).
+  var sd = Slider(document.getElementById('sliderD'), 'herod', function(img){
+    if(img.naturalWidth && img.naturalHeight) frame.style.setProperty('--fr', Math.min(img.naturalWidth / img.naturalHeight, 16 / 9).toFixed(4));
+  }, 4500);
+
+  function pick(){
+    if(mq.matches){ sm.stop(); sd.load(); sd.start(); }
+    else           { sd.stop(); sm.load(); sm.start(); }
+  }
+  pick();
+  if(mq.addEventListener) mq.addEventListener('change', pick); else if(mq.addListener) mq.addListener(pick);
+})();
+</script>
+
+<script>
+/* About: lines slide in one by one when the section scrolls into view; on desktop the picture grid is
+   sized to be exactly as tall as the text. Pictures: pic1.jpg ... pic6.jpg (same folder). */
+(function(){
+  var sec = document.getElementById('about'); if(!sec) return;
+  var wrap = document.getElementById('aboutWrap'), text = document.getElementById('aboutText');
+  var mq = window.matchMedia('(min-width:900px)');
+  var GAP = 10;                                          // grid gap in px (keep in sync with the CSS)
+
+  Array.prototype.forEach.call(sec.querySelectorAll('.about__line'), function(el, i){ el.style.setProperty('--i', i); });
+  Array.prototype.forEach.call(sec.querySelectorAll('.about__cell'), function(el, i){
+    el.style.setProperty('--i', i);
+    var im = new Image();                                // only added if the file exists
+    im.onload = function(){ im.alt = ''; el.appendChild(im); };
+    im.src = 'pic' + el.getAttribute('data-n') + '.jpg';
+  });
+
+  // 2 columns x 3 rows of squares: height = 1.5 x width + 0.5 x gap  ->  width = (height - gap/2) / 1.5
+  function sync(){
+    if(!mq.matches){ wrap.style.removeProperty('--gw'); return; }
+    var w = Math.min((text.offsetHeight - GAP / 2) / 1.5, wrap.clientWidth * 0.5);
+    wrap.style.setProperty('--gw', Math.max(w, 200) + 'px');
+  }
+  sync();
+  window.addEventListener('resize', sync);
+  if(window.ResizeObserver) new ResizeObserver(sync).observe(text);
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(sync);
+
+  function show(){ sec.classList.add('is-in'); }
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(en){
+      if(en[0].isIntersecting){ show(); io.disconnect(); }
+    }, {threshold:.25});
+    io.observe(sec);
+  } else show();
+})();
+</script>
+
+</body>
+</html>
