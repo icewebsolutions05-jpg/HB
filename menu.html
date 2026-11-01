@@ -131,10 +131,13 @@ a:focus-visible{outline:3px solid var(--brand-bright);outline-offset:2px}
 
 
 
+</style>
+<!-- page-specific CSS: the homepage fetches this block when someone opens Menu from it -->
+<style id="menu-page-css">
 /* ================= PAGE HEADER =================
    Same navbar intro as the homepage. Once it has opened, the logo + motto simply fade in at their
    final homepage positions (phones: small, top-left with the motto beside it; desktop: left, motto under it). */
-.hb-logo{display:block;width:100%;height:auto;overflow:visible}
+.mh .hb-logo{display:block;width:100%;height:auto;overflow:visible;filter:none}
 .mh{
   --logo-w:clamp(150px,42vw,190px);
   --s:.5;
@@ -174,7 +177,7 @@ a:focus-visible{outline:3px solid var(--brand-bright);outline-offset:2px}
 }
 
 /* ================= MENU GRID: 1 per row on phones, 3 per row on desktop ================= */
-.menu{max-width:1296px;margin:0 auto;padding:20px 16px 56px}
+.menu{min-height:0;border-bottom:0;max-width:1296px;margin:0 auto;padding:20px 16px 56px}
 .menu__grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr;gap:20px}
 .dish{
   display:flex;flex-direction:column;overflow:hidden;border-radius:18px;background:#fff;
@@ -202,6 +205,8 @@ a:focus-visible{outline:3px solid var(--brand-bright);outline-offset:2px}
   .dish{opacity:1;transform:none;transition:none}
 }
 
+</style>
+<style>
 /* ================= FOOTER ================= */
 .footer{
   background:var(--brand);color:var(--brand-text);

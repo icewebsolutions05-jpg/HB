@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+/* Coming from another page of this site (not a reload): skip the intro animations */
+try{ var t = performance.getEntriesByType('navigation')[0]; if(document.referrer && new URL(document.referrer).origin === location.origin && !(t && t.type === 'reload')) document.documentElement.classList.add('no-intro'); }catch(e){}
+</script>
 <title>The HB Restaurant & Lounge</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -57,16 +61,34 @@ a:focus-visible{outline:3px solid var(--brand-bright);outline-offset:2px}
 .nav ul::-webkit-scrollbar{display:none}
 .nav li{flex:0 0 auto}
 .nav a{
-  display:block;white-space:nowrap;
+  position:relative;display:block;white-space:nowrap;
   padding:8px 3.5px;border-radius:var(--radius);
   font-weight:600;font-size:10.5px;
   transition:background .2s ease,color .2s ease;
 }
 .nav a:hover{background:rgba(255,255,255,.14)}
-.nav a.nav__cta{
-  background:var(--btn-bg);color:var(--btn-text);padding:8px 9px;
+.nav a.nav__cta{padding:8px 9px;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.6)}
+/* ---- current-page pill: the black shape sits behind the link of the page you are on ---- */
+.nav a[aria-current="page"]{isolation:isolate;color:var(--btn-text)}
+.nav a[aria-current="page"]::before{
+  content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;
+  background:var(--btn-bg);view-transition-name:nav-pill;      /* same name on every page: the browser slides it */
 }
-.nav a.nav__cta:hover{background:#000;color:var(--brand-bright)}
+.nav a[aria-current="page"]:hover{color:var(--brand-bright)}
+
+/* ---- smooth page-to-page transition (Chrome / Edge / Safari 18.2+; other browsers just switch pages) ---- */
+@view-transition{navigation:auto}
+.nav{view-transition-name:site-nav}
+::view-transition-group(nav-pill){animation-duration:.5s;animation-timing-function:cubic-bezier(.65,0,.25,1)}
+::view-transition-old(nav-pill){display:none}
+::view-transition-new(nav-pill){animation:none;width:100%;height:100%}
+::view-transition-group(root){animation-duration:.3s}
+@media (prefers-reduced-motion:reduce){
+  ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}
+}
+/* arriving from another page of the site: the navbar is already there, no drop-in intro */
+.no-intro .nav__inner,.no-intro .nav ul{animation:none}
+
 
 /* the circle drops in from above the top of the screen (like it came out of the address bar), then spreads */
 @keyframes navPop{from{transform:translateY(calc(-100% - var(--nav-top) - 60px))}to{transform:none}}
@@ -419,6 +441,30 @@ section p{margin:0;color:#666}
   html{scroll-behavior:auto}
   .nav a{transition:none}
 }
+/* ---- in-page navigation (Home <-> Menu without reloading) ---- */
+[hidden]{display:none!important}
+html.vt-fwd::view-transition-old(root){animation:vtOutL .3s cubic-bezier(.4,0,1,1) both}
+html.vt-fwd::view-transition-new(root){animation:vtInR .5s cubic-bezier(.22,1,.36,1) both}
+html.vt-back::view-transition-old(root){animation:vtOutR .3s cubic-bezier(.4,0,1,1) both}
+html.vt-back::view-transition-new(root){animation:vtInL .5s cubic-bezier(.22,1,.36,1) both}
+@keyframes vtOutL{to{opacity:0;transform:translateX(-48px)}}
+@keyframes vtInR{from{opacity:0;transform:translateX(48px)}}
+@keyframes vtOutR{to{opacity:0;transform:translateX(48px)}}
+@keyframes vtInL{from{opacity:0;transform:translateX(-48px)}}
+/* menu page already seen once: no second fade-in of its header */
+.seen .mh__brand,.seen .mh__title{animation:none}
+
+/* arriving from another page of the site (not a reload): hero intro skipped, everything shown in its final state */
+.no-intro .hb-fork-fade,.no-intro .hb-mover,.no-intro .hb-leaf,.no-intro .hb-text-slide,.no-intro .hb-leaf-spin,
+.no-intro .hero__actions,.no-intro .hero__motto p,.no-intro .hero__frame,.no-intro .hero__media::before{animation:none}
+.no-intro .hero__media::before{opacity:1}
+@media (max-width:899px){
+  .no-intro .hero__logo{animation:none;transform:translateX(calc(-50% + var(--logo-edge) + var(--logo-w) * var(--logo-s) / 2)) scale(var(--logo-s))}
+}
+@media (min-width:900px){
+  .no-intro .hero__logo,.no-intro .hero__motto-row{animation:none;transform:translateX(calc(-50% + var(--logo-w)/2 + var(--logo-gap)))}
+}
+
 /* ================= FOOTER ================= */
 .footer{
   background:var(--brand);color:var(--brand-text);
@@ -432,8 +478,7 @@ section p{margin:0;color:#666}
   transition:background .2s ease,color .2s ease;
 }
 .footer a:hover{background:rgba(255,255,255,.14)}
-.footer a.nav__cta{background:var(--btn-bg);color:var(--btn-text)}
-.footer a.nav__cta:hover{background:#000;color:var(--brand-bright)}
+.footer a.nav__cta{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.6)}
 .footer a:focus-visible{outline:3px solid #fff;outline-offset:2px}
 .footer__copy{
   margin:28px auto 0;padding-top:18px;max-width:900px;
@@ -449,7 +494,7 @@ section p{margin:0;color:#666}
 <nav class="nav" aria-label="Main">
   <div class="nav__inner">
   <ul>
-    <li><a href="#home">Home</a></li>
+    <li><a href="index.html" aria-current="page">Home</a></li>
     <li><a href="menu.html">Menu</a></li>
     <li><a href="#reservations">Reservations</a></li>
     <li><a href="#order" class="nav__cta">Order</a></li>
@@ -592,11 +637,14 @@ section p{margin:0;color:#666}
   </section>
 </main>
 
+<!-- MENU VIEW: filled from menu.html the first time it is needed -->
+<div id="menuView" hidden aria-label="Menu"></div>
+
 <!-- ================= FOOTER ================= -->
 <footer class="footer">
   <nav aria-label="Footer">
     <ul>
-      <li><a href="#home">Home</a></li>
+      <li><a href="index.html">Home</a></li>
       <li><a href="menu.html">Menu</a></li>
       <li><a href="#reservations">Reservations</a></li>
       <li><a href="#order" class="nav__cta">Order</a></li>
@@ -705,7 +753,7 @@ section p{margin:0;color:#666}
   // automatic slide waits until the canvas has finished sliding in (about 5s after load).
   var sd = Slider(document.getElementById('sliderD'), 'herod', function(img){
     if(img.naturalWidth && img.naturalHeight) frame.style.setProperty('--fr', Math.min(img.naturalWidth / img.naturalHeight, 16 / 9).toFixed(4));
-  }, 4500);
+  }, document.documentElement.classList.contains('no-intro') ? 0 : 4500);
 
   function pick(){
     if(mq.matches){ sm.stop(); sd.load(); sd.start(); }
@@ -751,6 +799,124 @@ section p{margin:0;color:#666}
     }, {threshold:.25});
     io.observe(sec);
   } else show();
+})();
+</script>
+
+<script>
+/* ================= IN-PAGE ROUTER =================
+   Home and Menu live in this one page. Menu's content is fetched from menu.html only the first time it
+   is needed (or when the link is hovered / touched). The navbar never reloads, so the black pill slides
+   between links and the views slide past each other. menu.html still works on its own as a normal page
+   (search results, shared links, reloads). If anything fails, the link just opens the real page. */
+(function(){
+  var root   = document.documentElement;
+  var homeEl = document.getElementById('home');
+  var menuEl = document.getElementById('menuView');
+  var homeLink = document.querySelector('.nav a[href="index.html"]');
+  var menuLink = document.querySelector('.nav a[href="menu.html"]');
+  var homeURL  = location.pathname + location.search;
+  var homeTitle = document.title;
+  var current = 'home', busy = false, saved = {home:0, menu:0}, menuPromise = null;
+  var reduce = window.matchMedia('(prefers-reduced-motion:reduce)');
+  if('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+  function loadMenu(){
+    if(menuPromise) return menuPromise;
+    menuPromise = fetch('menu.html', {credentials:'same-origin'})
+      .then(function(r){ if(!r.ok) throw new Error('menu'); return r.text(); })
+      .then(function(txt){
+        txt = txt.replace(/hbReveal/g, 'hbRevealM');              // keep the logo's clip-path id unique on this page
+        var doc  = new DOMParser().parseFromString(txt, 'text/html');
+        var css  = doc.getElementById('menu-page-css');
+        var main = doc.querySelector('main');
+        if(!main) throw new Error('menu');
+        if(css && !document.getElementById('menu-page-css')){
+          var st = document.createElement('style'); st.id = 'menu-page-css'; st.textContent = css.textContent;
+          document.head.appendChild(st);
+        }
+        menuEl.innerHTML = main.innerHTML;
+        // the logo's intro animation classes belong to the homepage only
+        Array.prototype.forEach.call(menuEl.querySelectorAll('svg g, svg path'), function(n){ n.removeAttribute('class'); });
+        revealDishes();
+      })
+      .catch(function(e){ menuPromise = null; throw e; });
+    return menuPromise;
+  }
+
+  function revealDishes(){                                       // dishes fade up as they scroll into view
+    var cards = menuEl.querySelectorAll('.dish');
+    if(!('IntersectionObserver' in window)){ Array.prototype.forEach.call(cards, function(c){ c.classList.add('is-in'); }); return; }
+    var io = new IntersectionObserver(function(en){
+      en.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('is-in'); io.unobserve(e.target); } });
+    }, {threshold:.15});
+    Array.prototype.forEach.call(cards, function(c){ io.observe(c); });
+  }
+
+  function setCurrent(link, on){
+    if(!link) return;
+    if(on) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
+  }
+
+  function go(view, o){
+    o = o || {};
+    if(busy) return;
+    if(view === current){
+      if(o.hash){ var t = document.querySelector(o.hash); if(t) t.scrollIntoView({behavior:'smooth'}); }
+      else if(!o.pop) window.scrollTo({top:0, behavior:'smooth'});
+      return;
+    }
+    var target = view === 'menu' ? 'menu.html' : homeURL;
+    function fallback(){ location.href = target + (o.hash || ''); }
+    busy = true;
+    (view === 'menu' ? loadMenu() : Promise.resolve()).then(function(){
+      saved[current] = window.scrollY;
+      if(!o.pop){
+        try{ history.pushState({view:view}, '', target + (o.hash || '')); }catch(e){ fallback(); return; }
+      }
+      function swap(){
+        if(current === 'home') root.classList.add('no-intro');   // never replay the homepage intro
+        if(current === 'menu') menuEl.classList.add('seen');
+        homeEl.hidden = view !== 'home';
+        menuEl.hidden = view !== 'menu';
+        current = view;
+        setCurrent(homeLink, view === 'home');
+        setCurrent(menuLink, view === 'menu');
+        document.title = view === 'menu' ? 'Menu | The HB Restaurant & Lounge' : homeTitle;
+        var el = (o.hash && view === 'home') ? document.querySelector(o.hash) : null;
+        if(el) el.scrollIntoView({behavior:'instant', block:'start'});
+        else window.scrollTo({top: o.pop ? (saved[view] || 0) : 0, left:0, behavior:'instant'});
+      }
+      function done(){ busy = false; root.classList.remove('vt-fwd', 'vt-back'); }
+      if(document.startViewTransition && !reduce.matches){
+        root.classList.add(view === 'menu' ? 'vt-fwd' : 'vt-back');
+        var vt = document.startViewTransition(swap);
+        vt.finished.then(done, done);
+      } else { swap(); done(); }
+    }).catch(function(){ fallback(); });
+  }
+
+  document.addEventListener('click', function(e){
+    if(e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target.closest ? e.target.closest('a[href]') : null;
+    if(!a || a.target === '_blank') return;
+    var h = a.getAttribute('href');
+    if(h === 'menu.html'){ e.preventDefault(); go('menu'); }
+    else if(h === 'index.html'){ e.preventDefault(); go('home'); }
+    else if(h === '#contact' && current !== 'home'){ e.preventDefault(); go('home', {hash:'#contact'}); }
+  });
+
+  // start fetching the menu as soon as someone is about to tap / click its link
+  function warm(e){
+    var a = e.target.closest ? e.target.closest('a[href="menu.html"]') : null;
+    if(a) loadMenu().catch(function(){});
+  }
+  document.addEventListener('pointerover', warm);
+  document.addEventListener('touchstart', warm, {passive:true});
+  document.addEventListener('focusin', warm);
+
+  window.addEventListener('popstate', function(){
+    go(/menu\.html$/.test(location.pathname) ? 'menu' : 'home', {pop:true});
+  });
 })();
 </script>
 
