@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+/* Coming from another page of this site (not a reload): skip the intro animations */
+try{ var t = performance.getEntriesByType('navigation')[0]; if(document.referrer && new URL(document.referrer).origin === location.origin && !(t && t.type === 'reload')) document.documentElement.classList.add('no-intro'); }catch(e){}
+</script>
 <title>Menu | The HB Restaurant &amp; Lounge</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -56,16 +60,34 @@ a:focus-visible{outline:3px solid var(--brand-bright);outline-offset:2px}
 .nav ul::-webkit-scrollbar{display:none}
 .nav li{flex:0 0 auto}
 .nav a{
-  display:block;white-space:nowrap;
+  position:relative;display:block;white-space:nowrap;
   padding:8px 3.5px;border-radius:var(--radius);
   font-weight:600;font-size:10.5px;
   transition:background .2s ease,color .2s ease;
 }
 .nav a:hover{background:rgba(255,255,255,.14)}
-.nav a.nav__cta{
-  background:var(--btn-bg);color:var(--btn-text);padding:8px 9px;
+.nav a.nav__cta{padding:8px 9px;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.6)}
+/* ---- current-page pill: the black shape sits behind the link of the page you are on ---- */
+.nav a[aria-current="page"]{isolation:isolate;color:var(--btn-text)}
+.nav a[aria-current="page"]::before{
+  content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;
+  background:var(--btn-bg);view-transition-name:nav-pill;      /* same name on every page: the browser slides it */
 }
-.nav a.nav__cta:hover{background:#000;color:var(--brand-bright)}
+.nav a[aria-current="page"]:hover{color:var(--brand-bright)}
+
+/* ---- smooth page-to-page transition (Chrome / Edge / Safari 18.2+; other browsers just switch pages) ---- */
+@view-transition{navigation:auto}
+.nav{view-transition-name:site-nav}
+::view-transition-group(nav-pill){animation-duration:.5s;animation-timing-function:cubic-bezier(.65,0,.25,1)}
+::view-transition-old(nav-pill){display:none}
+::view-transition-new(nav-pill){animation:none;width:100%;height:100%}
+::view-transition-group(root){animation-duration:.3s}
+@media (prefers-reduced-motion:reduce){
+  ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}
+}
+/* arriving from another page of the site: the navbar is already there, no drop-in intro */
+.no-intro .nav__inner,.no-intro .nav ul{animation:none}
+
 
 /* the circle drops in from above the top of the screen (like it came out of the address bar), then spreads */
 @keyframes navPop{from{transform:translateY(calc(-100% - var(--nav-top) - 60px))}to{transform:none}}
@@ -108,7 +130,6 @@ a:focus-visible{outline:3px solid var(--brand-bright);outline-offset:2px}
 }
 
 
-.nav a[aria-current="page"]{background:rgba(255,255,255,.18)}
 
 /* ================= PAGE HEADER =================
    Same navbar intro as the homepage. Once it has opened, the logo + motto simply fade in at their
@@ -123,6 +144,8 @@ a:focus-visible{outline:3px solid var(--brand-bright);outline-offset:2px}
   padding:calc(var(--nav-h) + var(--nav-top) + 12px) 12px 8px;
 }
 .mh__brand{display:flex;align-items:center;gap:10px;animation:mhIn .8s ease 2.7s 1 both}
+.no-intro .mh__brand{animation-delay:.1s}
+.no-intro .mh__title{animation-delay:.35s}
 .mh__brand .hb-logo{width:var(--lw);flex:0 0 auto}
 .mh__motto p{
   margin:0;padding:0 0 0 10px;border-left:4px solid #0a0a0a;
@@ -192,8 +215,7 @@ a:focus-visible{outline:3px solid var(--brand-bright);outline-offset:2px}
   transition:background .2s ease,color .2s ease;
 }
 .footer a:hover{background:rgba(255,255,255,.14)}
-.footer a.nav__cta{background:var(--btn-bg);color:var(--btn-text)}
-.footer a.nav__cta:hover{background:#000;color:var(--brand-bright)}
+.footer a.nav__cta{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.6)}
 .footer a:focus-visible{outline:3px solid #fff;outline-offset:2px}
 .footer__copy{
   margin:28px auto 0;padding-top:18px;max-width:900px;
