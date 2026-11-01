@@ -188,6 +188,8 @@ main{padding-top:calc(var(--nav-h) + var(--nav-top))}   /* mobile: hero starts r
 .slider__dots{position:absolute;left:0;right:0;bottom:10px;z-index:2;display:none;justify-content:center;gap:7px}
 .slider__dot{width:9px;height:9px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.65);box-shadow:0 0 0 1px rgba(0,0,0,.25);cursor:pointer}
 .slider__dot.is-on{background:var(--brand-bright)}
+/* desktop canvas stays 16:9; a picture smaller than it keeps its size, centred, and the green shows around it */
+#sliderD .slide img{object-fit:scale-down}
 .slider.is-multi .slider__btn{display:flex}
 .slider.is-multi .slider__dots{display:flex}
 
@@ -742,9 +744,7 @@ section p{margin:0;color:#666}
 
   // desktop: canvas is 16:9 at most; a narrower photo shrinks it to its own shape. The first
   // automatic slide waits until the canvas has finished sliding in (about 5s after load).
-  var sd = Slider(document.getElementById('sliderD'), 'herod', function(img){
-    if(img.naturalWidth && img.naturalHeight) frame.style.setProperty('--fr', Math.min(img.naturalWidth / img.naturalHeight, 16 / 9).toFixed(4));
-  }, document.documentElement.classList.contains('no-intro') ? 0 : 4500);
+  var sd = Slider(document.getElementById('sliderD'), 'herod', null, document.documentElement.classList.contains('no-intro') ? 0 : 4500);
 
   function pick(){
     if(mq.matches){ sm.stop(); sd.load(); sd.start(); }
