@@ -492,7 +492,7 @@ section p{margin:0;color:#666}
     <li><a href="reservations.html">Reservations</a></li>
     <li><a href="order.html" class="nav__cta">Order</a></li>
     <li><a href="customer-care.html">Customer Care</a></li>
-    <li><a href="#contact">Contact</a></li>
+    <li><a href="track.html">Track</a></li>
   </ul>
   </div>
 </nav>
@@ -635,6 +635,7 @@ section p{margin:0;color:#666}
 <div id="resView" hidden aria-label="Reservations"></div>
 <div id="orderView" hidden aria-label="Order"></div>
 <div id="careView" hidden aria-label="Customer Care"></div>
+<div id="trackView" hidden aria-label="Orders and Reservations"></div>
 
 <!-- ================= FOOTER ================= -->
 <footer class="footer">
@@ -811,13 +812,14 @@ section p{margin:0;color:#666}
   var SITE = ' | The HB Restaurant & Lounge';
 
   /* left-to-right order of the navbar: decides which way the views slide */
-  var ORDER = ['home', 'menu', 'reservations', 'order', 'care'];
+  var ORDER = ['home', 'menu', 'reservations', 'order', 'care', 'track'];
   var VIEWS = {
     home:         {el:homeEl, href:'index.html',        link:document.querySelector('.nav a[href="index.html"]'),        title:homeTitle},
     menu:         {el:document.getElementById('menuView'),  href:'menu.html',         css:'menu-page-css',         id:'M', title:'Menu' + SITE},
     reservations: {el:document.getElementById('resView'),   href:'reservations.html', css:'reservations-page-css', id:'R', title:'Reservations' + SITE, js:'reservations.js', init:'reservations'},
     order:        {el:document.getElementById('orderView'), href:'order.html',        css:'order-page-css',        id:'O', title:'Order' + SITE,        js:'order.js',        init:'order'},
-    care:         {el:document.getElementById('careView'),  href:'customer-care.html', css:'care-page-css',  id:'C', title:'Customer Care' + SITE, js:'care.js', init:'care'}
+    care:         {el:document.getElementById('careView'),  href:'customer-care.html', css:'care-page-css',  id:'C', title:'Customer Care' + SITE, js:'care.js', init:'care'},
+    track:        {el:document.getElementById('trackView'), href:'track.html', css:'track-page-css', id:'T', title:'Orders / Reservations' + SITE, js:'track.js', init:'track'}
   };
   var byHref = {};
   ORDER.forEach(function(k){
@@ -825,7 +827,7 @@ section p{margin:0;color:#666}
     if(!v.link) v.link = document.querySelector('.nav a[href="' + v.href + '"]');
   });
 
-  var current = 'home', busy = false, saved = {home:0, menu:0, reservations:0, order:0, care:0};
+  var current = 'home', busy = false, saved = {home:0, menu:0, reservations:0, order:0, care:0, track:0};
   var reduce = window.matchMedia('(prefers-reduced-motion:reduce)');
   if('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
