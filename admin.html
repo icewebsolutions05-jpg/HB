@@ -277,7 +277,7 @@ table.grid{border-collapse:separate;border-spacing:3px;width:100%}
   var $ = function(id){ return document.getElementById(id); };
   var rnd = function(n){ return Math.floor(Math.random() * n); };
   var pick = function(a){ return a[rnd(a.length)]; };
-  var money = function(n){ return '\u20A6' + Math.round(n || 0).toLocaleString('en-NG'); };
+  var money = function(){ return '\u20A6xxxx'; };   /* every price on the site shows as the xxxx placeholder */
   function slotParts(i){ var m = 540 + i * 30, h = Math.floor(m / 60), mm = m % 60; return {t:(h % 12 || 12) + ':' + (mm ? '30' : '00'), ap:h >= 12 ? 'PM' : 'AM'}; }
   function slotLabel(i){ var p = slotParts(i); return p.t + ' ' + p.ap; }
   function dayInfo(n){ var d = new Date(); d.setDate(d.getDate() + n); return {top:n === 0 ? 'Today' : n === 1 ? 'Tomorrow' : d.toLocaleDateString('en-GB',{weekday:'short'}), sub:d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}), full:d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}; }
@@ -466,10 +466,10 @@ table.grid{border-collapse:separate;border-spacing:3px;width:100%}
     var host = $('mList'); host.innerHTML = '';
     menu.forEach(function(d){
       var row = document.createElement('div'); row.className = 'mrow';
-      row.innerHTML = '<div class="mrow__img"></div><input class="txt" type="text" aria-label="Dish name"><div class="mrow__ctl"><label class="fld fld--p"><span>\u20A6</span><input type="number" min="0" inputmode="numeric" aria-label="Price"></label><label class="sw"><input type="checkbox"><i></i><b style="font-weight:600"></b></label><button class="rm" type="button">Remove</button></div>';
+      row.innerHTML = '<div class="mrow__img"></div><input class="txt" type="text" aria-label="Dish name"><div class="mrow__ctl"><label class="fld fld--p"><span>\u20A6</span><input type="text" inputmode="numeric" placeholder="xxxx" aria-label="Price"></label><label class="sw"><input type="checkbox"><i></i><b style="font-weight:600"></b></label><button class="rm" type="button">Remove</button></div>';
       var thumb = row.querySelector('.mrow__img'); if(d.img) thumb.style.backgroundImage = 'url(' + d.img + ')';
       var nm = row.querySelector('.txt'), pr = row.querySelector('input[type=number]'), sw = row.querySelector('.sw input'), lb = row.querySelector('.sw b');
-      nm.value = d.name; pr.value = d.price; sw.checked = d.on; lb.textContent = d.on ? 'Available' : 'Sold out';
+      nm.value = d.name; sw.checked = d.on; lb.textContent = d.on ? 'Available' : 'Sold out';
       nm.addEventListener('input', function(){ d.name = nm.value; });
       pr.addEventListener('input', function(){ d.price = Math.max(0, +pr.value || 0); stats(); });
       sw.addEventListener('change', function(){ d.on = sw.checked; lb.textContent = d.on ? 'Available' : 'Sold out'; });
@@ -478,8 +478,8 @@ table.grid{border-collapse:separate;border-spacing:3px;width:100%}
     });
     var p = $('prices'); p.innerHTML = '';
     [['Table','Table booking'],['Lounge','Lounge booking'],['VIP','VIP Lounge booking']].forEach(function(k){
-      var w = document.createElement('div'); w.innerHTML = '<label></label><div class="fld"><span>\u20A6</span><input type="number" min="0" inputmode="numeric"></div>';
-      w.querySelector('label').textContent = k[1]; var inp = w.querySelector('input'); inp.value = prices[k[0]];
+      var w = document.createElement('div'); w.innerHTML = '<label></label><div class="fld"><span>\u20A6</span><input type="text" inputmode="numeric" placeholder="xxxx"></div>';
+      w.querySelector('label').textContent = k[1]; var inp = w.querySelector('input');
       inp.setAttribute('aria-label', k[1] + ' price');
       inp.addEventListener('input', function(){ prices[k[0]] = Math.max(0, +inp.value || 0); stats(); });
       p.appendChild(w);
