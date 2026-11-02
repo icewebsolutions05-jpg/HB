@@ -490,7 +490,7 @@ section p{margin:0;color:#666}
     <li><a href="index.html" aria-current="page">Home</a></li>
     <li><a href="menu.html">Menu</a></li>
     <li><a href="reservations.html">Reservations</a></li>
-    <li><a href="#order" class="nav__cta">Order</a></li>
+    <li><a href="order.html" class="nav__cta">Order</a></li>
     <li><a href="#care">Customer Care</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
@@ -570,7 +570,7 @@ section p{margin:0;color:#666}
 
     <!-- BUTTONS: sit in the band directly under the video -->
     <div class="hero__actions">
-      <a class="btn btn--dark" href="#order">Order Now</a>
+      <a class="btn btn--dark" href="order.html">Order Now</a>
       <a class="btn btn--green" href="reservations.html">Book a Table</a>
     </div>
   </div>
@@ -632,6 +632,8 @@ section p{margin:0;color:#666}
 
 <!-- MENU VIEW: filled from menu.html the first time it is needed -->
 <div id="menuView" hidden aria-label="Menu"></div>
+<div id="resView" hidden aria-label="Reservations"></div>
+<div id="orderView" hidden aria-label="Order"></div>
 
 <!-- ================= FOOTER ================= -->
 <footer class="footer">
@@ -640,7 +642,7 @@ section p{margin:0;color:#666}
       <li><a href="index.html">Home</a></li>
       <li><a href="menu.html">Menu</a></li>
       <li><a href="reservations.html">Reservations</a></li>
-      <li><a href="#order" class="nav__cta">Order</a></li>
+      <li><a href="order.html" class="nav__cta">Order</a></li>
       <li><a href="#care">Customer Care</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
@@ -795,47 +797,71 @@ section p{margin:0;color:#666}
 
 <script>
 /* ================= IN-PAGE ROUTER =================
-   Home and Menu live in this one page. Menu's content is fetched from menu.html only the first time it
-   is needed (or when the link is hovered / touched). The navbar never reloads, so the black pill slides
-   between links and the views slide past each other. menu.html still works on its own as a normal page
-   (search results, shared links, reloads). If anything fails, the link just opens the real page. */
+   Home, Menu, Reservations and Order all live in this one page. A view's content is fetched from its own
+   file (menu.html, reservations.html, order.html) only the first time it is needed (or when its link is
+   hovered / touched). The navbar never reloads, so the black pill slides between links and the views slide
+   past each other. Each of those files still works on its own as a normal page (search results, shared
+   links, reloads). If anything fails, the link just opens the real page. */
 (function(){
   var root   = document.documentElement;
   var homeEl = document.getElementById('home');
-  var menuEl = document.getElementById('menuView');
-  var homeLink = document.querySelector('.nav a[href="index.html"]');
-  var menuLink = document.querySelector('.nav a[href="menu.html"]');
-  var homeURL  = location.pathname + location.search;
+  var homeURL   = location.pathname + location.search;
   var homeTitle = document.title;
-  var current = 'home', busy = false, saved = {home:0, menu:0}, menuPromise = null;
+  var SITE = ' | The HB Restaurant & Lounge';
+
+  /* left-to-right order of the navbar: decides which way the views slide */
+  var ORDER = ['home', 'menu', 'reservations', 'order'];
+  var VIEWS = {
+    home:         {el:homeEl, href:'index.html',        link:document.querySelector('.nav a[href="index.html"]'),        title:homeTitle},
+    menu:         {el:document.getElementById('menuView'),  href:'menu.html',         css:'menu-page-css',         id:'M', title:'Menu' + SITE},
+    reservations: {el:document.getElementById('resView'),   href:'reservations.html', css:'reservations-page-css', id:'R', title:'Reservations' + SITE, js:'reservations.js', init:'reservations'},
+    order:        {el:document.getElementById('orderView'), href:'order.html',        css:'order-page-css',        id:'O', title:'Order' + SITE,        js:'order.js',        init:'order'}
+  };
+  var byHref = {};
+  ORDER.forEach(function(k){
+    var v = VIEWS[k]; v.name = k; byHref[v.href] = k;
+    if(!v.link) v.link = document.querySelector('.nav a[href="' + v.href + '"]');
+  });
+
+  var current = 'home', busy = false, saved = {home:0, menu:0, reservations:0, order:0};
   var reduce = window.matchMedia('(prefers-reduced-motion:reduce)');
   if('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
-  function loadMenu(){
-    if(menuPromise) return menuPromise;
-    menuPromise = fetch('menu.html', {credentials:'same-origin'})
-      .then(function(r){ if(!r.ok) throw new Error('menu'); return r.text(); })
-      .then(function(txt){
-        txt = txt.replace(/hbReveal/g, 'hbRevealM');              // keep the logo's clip-path id unique on this page
-        var doc  = new DOMParser().parseFromString(txt, 'text/html');
-        var css  = doc.getElementById('menu-page-css');
-        var main = doc.querySelector('main');
-        if(!main) throw new Error('menu');
-        if(css && !document.getElementById('menu-page-css')){
-          var st = document.createElement('style'); st.id = 'menu-page-css'; st.textContent = css.textContent;
-          document.head.appendChild(st);
-        }
-        menuEl.innerHTML = main.innerHTML;
-        // the logo's intro animation classes belong to the homepage only
-        Array.prototype.forEach.call(menuEl.querySelectorAll('svg g, svg path'), function(n){ n.removeAttribute('class'); });
-        revealDishes();
-      })
-      .catch(function(e){ menuPromise = null; throw e; });
-    return menuPromise;
+  function loadScript(src){
+    return new Promise(function(ok, fail){
+      var el = document.createElement('script'); el.src = src;
+      el.onload = ok; el.onerror = function(){ fail(new Error(src)); };
+      document.head.appendChild(el);
+    });
   }
 
-  function revealDishes(){                                       // dishes fade up as they scroll into view
-    var cards = menuEl.querySelectorAll('.dish');
+  function load(name){
+    var v = VIEWS[name];
+    if(v.promise) return v.promise;
+    v.promise = fetch(v.href, {credentials:'same-origin'})
+      .then(function(r){ if(!r.ok) throw new Error(name); return r.text(); })
+      .then(function(txt){
+        txt = txt.replace(/hbReveal/g, 'hbReveal' + v.id);     // keep the logo's clip-path id unique on this page
+        var doc  = new DOMParser().parseFromString(txt, 'text/html');
+        var css  = doc.getElementById(v.css);
+        var main = doc.querySelector('main');
+        if(!main) throw new Error(name);
+        if(css && !document.getElementById(v.css)){
+          var st = document.createElement('style'); st.id = v.css; st.textContent = css.textContent;
+          document.head.appendChild(st);
+        }
+        v.el.innerHTML = main.innerHTML;
+        // the logo's intro animation classes belong to the homepage only
+        Array.prototype.forEach.call(v.el.querySelectorAll('svg g, svg path'), function(n){ n.removeAttribute('class'); });
+        if(name === 'menu') revealDishes(v.el);
+        if(v.js) return loadScript(v.js).then(function(){ window.HB[v.init](v.el); });
+      })
+      .catch(function(e){ v.promise = null; throw e; });
+    return v.promise;
+  }
+
+  function revealDishes(el){                                     // dishes fade up as they scroll into view
+    var cards = el.querySelectorAll('.dish');
     if(!('IntersectionObserver' in window)){ Array.prototype.forEach.call(cards, function(c){ c.classList.add('is-in'); }); return; }
     var io = new IntersectionObserver(function(en){
       en.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('is-in'); io.unobserve(e.target); } });
@@ -874,33 +900,31 @@ section p{margin:0;color:#666}
       else if(!o.pop) window.scrollTo({top:0, behavior:'smooth'});
       return;
     }
-    var target = view === 'menu' ? 'menu.html' : homeURL;
+    var target = view === 'home' ? homeURL : VIEWS[view].href;
     function fallback(){ location.href = target + (o.hash || ''); }
     busy = true;
-    (view === 'menu' ? loadMenu() : Promise.resolve()).then(function(){
+    (view === 'home' ? Promise.resolve() : load(view)).then(function(){
       saved[current] = window.scrollY;
       if(!o.pop){
         try{ history.pushState({view:view}, '', target + (o.hash || '')); }catch(e){ fallback(); return; }
       }
-      var fromEl = current === 'home' ? homeEl : menuEl;
-      var toEl   = view === 'home' ? homeEl : menuEl;
-      var dir    = view === 'menu' ? 1 : -1;                      // forward: old view leaves left, new one arrives from the right
+      var fromEl = VIEWS[current].el;
+      var toEl   = VIEWS[view].el;
+      var dir    = ORDER.indexOf(view) > ORDER.indexOf(current) ? 1 : -1;   // forward: old view leaves left, new one arrives from the right
       var move   = !reduce.matches && fromEl.animate;
       var leave  = null;
       function swap(){
         if(current === 'home') root.classList.add('no-intro');   // never replay the homepage intro
-        if(current === 'menu') menuEl.classList.add('seen');
-        homeEl.hidden = view !== 'home';
-        menuEl.hidden = view !== 'menu';
+        fromEl.classList.add('seen');
+        ORDER.forEach(function(k){ VIEWS[k].el.hidden = k !== view; });
         current = view;
-        document.title = view === 'menu' ? 'Menu | The HB Restaurant & Lounge' : homeTitle;
+        document.title = VIEWS[view].title;
         var el = (o.hash && view === 'home') ? document.querySelector(o.hash) : null;
         if(el) el.scrollIntoView({behavior:'instant', block:'start'});
         else window.scrollTo({top: o.pop ? (saved[view] || 0) : 0, left:0, behavior:'instant'});
         if(leave) leave.cancel();
       }
-      setCurrent(homeLink, view === 'home');                      // the black pill starts sliding right away
-      setCurrent(menuLink, view === 'menu');
+      ORDER.forEach(function(k){ setCurrent(VIEWS[k].link, k === view); });   // the black pill starts sliding right away
       placePill();
       if(move){
         leave = fromEl.animate([{opacity:1, transform:'none'}, {opacity:0, transform:'translateX(' + (-48 * dir) + 'px)'}],
@@ -911,7 +935,7 @@ section p{margin:0;color:#666}
                               {duration:450, easing:'cubic-bezier(.22,1,.36,1)'}).finished;
         }).then(function(){ busy = false; }, function(){ busy = false; });
       } else { swap(); busy = false; }
-    }).catch(function(){ fallback(); });
+    }).catch(function(){ busy = false; fallback(); });
   }
 
   document.addEventListener('click', function(e){
@@ -919,22 +943,23 @@ section p{margin:0;color:#666}
     var a = e.target.closest ? e.target.closest('a[href]') : null;
     if(!a || a.target === '_blank') return;
     var h = a.getAttribute('href');
-    if(h === 'menu.html'){ e.preventDefault(); go('menu'); }
-    else if(h === 'index.html'){ e.preventDefault(); go('home'); }
+    if(byHref[h]){ e.preventDefault(); go(byHref[h]); }
     else if(h === '#contact' && current !== 'home'){ e.preventDefault(); go('home', {hash:'#contact'}); }
   });
 
-  // start fetching the menu as soon as someone is about to tap / click its link
+  // start fetching a page as soon as someone is about to tap / click its link
   function warm(e){
-    var a = e.target.closest ? e.target.closest('a[href="menu.html"]') : null;
-    if(a) loadMenu().catch(function(){});
+    var a = e.target.closest ? e.target.closest('a[href]') : null;
+    var k = a && byHref[a.getAttribute('href')];
+    if(k && k !== 'home') load(k).catch(function(){});
   }
   document.addEventListener('pointerover', warm);
   document.addEventListener('touchstart', warm, {passive:true});
   document.addEventListener('focusin', warm);
 
   window.addEventListener('popstate', function(){
-    go(/menu\.html$/.test(location.pathname) ? 'menu' : 'home', {pop:true});
+    var m = location.pathname.match(/([^\/]+\.html)$/);
+    go((m && byHref[m[1]] && m[1] !== 'index.html') ? byHref[m[1]] : 'home', {pop:true});
   });
 })();
 </script>
