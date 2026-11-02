@@ -491,7 +491,7 @@ section p{margin:0;color:#666}
     <li><a href="menu.html">Menu</a></li>
     <li><a href="reservations.html">Reservations</a></li>
     <li><a href="order.html" class="nav__cta">Order</a></li>
-    <li><a href="#care">Customer Care</a></li>
+    <li><a href="customer-care.html">Customer Care</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
   </div>
@@ -634,6 +634,7 @@ section p{margin:0;color:#666}
 <div id="menuView" hidden aria-label="Menu"></div>
 <div id="resView" hidden aria-label="Reservations"></div>
 <div id="orderView" hidden aria-label="Order"></div>
+<div id="careView" hidden aria-label="Customer Care"></div>
 
 <!-- ================= FOOTER ================= -->
 <footer class="footer">
@@ -643,7 +644,7 @@ section p{margin:0;color:#666}
       <li><a href="menu.html">Menu</a></li>
       <li><a href="reservations.html">Reservations</a></li>
       <li><a href="order.html" class="nav__cta">Order</a></li>
-      <li><a href="#care">Customer Care</a></li>
+      <li><a href="customer-care.html">Customer Care</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
   </nav>
@@ -797,8 +798,8 @@ section p{margin:0;color:#666}
 
 <script>
 /* ================= IN-PAGE ROUTER =================
-   Home, Menu, Reservations and Order all live in this one page. A view's content is fetched from its own
-   file (menu.html, reservations.html, order.html) only the first time it is needed (or when its link is
+   Home, Menu, Reservations, Order and Customer Care all live in this one page. A view's content is fetched from its own
+   file (menu.html, reservations.html, order.html, customer-care.html) only the first time it is needed (or when its link is
    hovered / touched). The navbar never reloads, so the black pill slides between links and the views slide
    past each other. Each of those files still works on its own as a normal page (search results, shared
    links, reloads). If anything fails, the link just opens the real page. */
@@ -810,12 +811,13 @@ section p{margin:0;color:#666}
   var SITE = ' | The HB Restaurant & Lounge';
 
   /* left-to-right order of the navbar: decides which way the views slide */
-  var ORDER = ['home', 'menu', 'reservations', 'order'];
+  var ORDER = ['home', 'menu', 'reservations', 'order', 'care'];
   var VIEWS = {
     home:         {el:homeEl, href:'index.html',        link:document.querySelector('.nav a[href="index.html"]'),        title:homeTitle},
     menu:         {el:document.getElementById('menuView'),  href:'menu.html',         css:'menu-page-css',         id:'M', title:'Menu' + SITE},
     reservations: {el:document.getElementById('resView'),   href:'reservations.html', css:'reservations-page-css', id:'R', title:'Reservations' + SITE, js:'reservations.js', init:'reservations'},
-    order:        {el:document.getElementById('orderView'), href:'order.html',        css:'order-page-css',        id:'O', title:'Order' + SITE,        js:'order.js',        init:'order'}
+    order:        {el:document.getElementById('orderView'), href:'order.html',        css:'order-page-css',        id:'O', title:'Order' + SITE,        js:'order.js',        init:'order'},
+    care:         {el:document.getElementById('careView'),  href:'customer-care.html', css:'care-page-css',  id:'C', title:'Customer Care' + SITE, js:'care.js', init:'care'}
   };
   var byHref = {};
   ORDER.forEach(function(k){
@@ -823,7 +825,7 @@ section p{margin:0;color:#666}
     if(!v.link) v.link = document.querySelector('.nav a[href="' + v.href + '"]');
   });
 
-  var current = 'home', busy = false, saved = {home:0, menu:0, reservations:0, order:0};
+  var current = 'home', busy = false, saved = {home:0, menu:0, reservations:0, order:0, care:0};
   var reduce = window.matchMedia('(prefers-reduced-motion:reduce)');
   if('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
