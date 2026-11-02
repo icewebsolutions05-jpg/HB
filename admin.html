@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<script>
+/* Coming from another page of this site (not a reload): skip the intro animations */
+try{ var t = performance.getEntriesByType('navigation')[0]; if(document.referrer && new URL(document.referrer).origin === location.origin && !(t && t.type === 'reload')) document.documentElement.classList.add('no-intro'); }catch(e){}
+</script>
+<title>Admin | The HB Restaurant &amp; Lounge</title>
+<style>
+:root{
+  --bg:#ffffff; --text:#111111; --brand:#1F6F3A; --brand-bright:#2ECC71; --brand-text:#ffffff;
+  --btn-bg:#0a0a0a; --btn-text:#ffffff;
+  --nav-h:56px; --nav-end-r:28px; --nav-top:10px; --radius:999px;
+  --tabs-h:50px; --tabs-top:76px;
+  --mute:#5b6a60; --line:#e3eae5; --soft:#f3f8f4; --bad:#b42318; --warn:#b45309;
+  --shadow:0 8px 24px rgba(0,0,0,.18);
+  --font-body:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --font-head:Georgia,"Times New Roman",serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.5;padding-top:92px}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--brand-bright);outline-offset:2px}
+button{font:inherit;cursor:pointer}
+
+/* ================= ISLAND 1: title island (same drop-in + expand as the other pages) ================= */
+.nav{position:fixed;top:var(--nav-top);left:8px;right:8px;z-index:100;height:var(--nav-h);color:var(--brand-text);filter:drop-shadow(0 6px 10px rgba(0,0,0,.2))}
+.nav__inner{
+  height:100%;background:var(--brand);border-radius:var(--nav-end-r);display:flex;align-items:center;justify-content:center;
+  animation:navPop .9s cubic-bezier(.34,1.56,.64,1) .1s 1 both, navExpand 1.3s cubic-bezier(.65,0,.25,1) 1.55s 1 both;
+}
+.nav__title{margin:0;font:700 15px var(--font-body);letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;animation:navLinksIn .6s ease 2.25s 1 both}
+.no-intro .nav__inner,.no-intro .nav__title{animation:none}
+@keyframes navPop{from{transform:translateY(calc(-100% - var(--nav-top) - 60px))}to{transform:none}}
+@keyframes navExpand{
+  from{clip-path:inset(0 calc(50% - var(--nav-h)/2) 0 calc(50% - var(--nav-h)/2) round calc(var(--nav-h)/2))}
+  to  {clip-path:inset(0 0 0 0 round var(--nav-end-r))}
+}
+@keyframes navLinksIn{from{opacity:0}to{opacity:1}}
+@keyframes mhIn{from{opacity:0}to{opacity:1}}
+@keyframes tabsIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+
+/* ================= STATS ================= */
+.adm{max-width:1296px;margin:0 auto;padding:12px 16px 90px;animation:mhIn .8s ease 3.2s 1 both}
+.no-intro .adm{animation-delay:.5s}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 16px}
+.stat{background:#fff;border-radius:18px;box-shadow:0 6px 22px rgba(0,0,0,.1);padding:14px 16px}
+.stat b{display:block;font:700 26px/1.1 var(--font-head);color:var(--brand);transition:transform .25s}
+.stat b.pop{transform:scale(1.12);transform-origin:left}
+.stat span{font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+
+/* ================= ISLAND 2: tabs island (green island, black pill slides behind the open tab) ================= */
+.tabs{position:sticky;top:var(--tabs-top);z-index:90;height:var(--tabs-h);margin:0 0 16px;color:var(--brand-text);filter:drop-shadow(0 6px 10px rgba(0,0,0,.2));animation:tabsIn .7s ease 2.8s 1 both}
+.no-intro .tabs{animation:none}
+.tabs__inner{position:relative;height:100%;background:var(--brand);border-radius:calc(var(--tabs-h)/2)}
+.tabs ul{position:relative;z-index:1;list-style:none;margin:0;padding:0 6px;height:100%;display:flex;align-items:center;justify-content:space-between;overflow-x:auto;scrollbar-width:none}
+.tabs ul::-webkit-scrollbar{display:none}
+.tabs li{flex:0 0 auto}
+.tabs button{position:relative;display:block;white-space:nowrap;border:0;background:none;color:inherit;padding:9px 7px;border-radius:var(--radius);font-weight:600;font-size:11px;transition:background .2s ease,color .2s ease}
+.tabs button:hover{background:rgba(255,255,255,.14)}
+.tabs button[aria-selected="true"]{color:var(--btn-text)}
+.tabs button[aria-selected="true"]:hover{background:transparent;color:var(--brand-bright)}
+.tabs__pill{position:absolute;left:0;top:0;width:0;height:0;border-radius:var(--radius);background:var(--btn-bg);pointer-events:none;opacity:0}
+.tabs__pill.on{opacity:1;transition:transform .5s cubic-bezier(.65,0,.25,1),width .5s cubic-bezier(.65,0,.25,1),height .5s cubic-bezier(.65,0,.25,1)}
+
+/* ================= PANELS ================= */
+.panel{animation:panIn .45s cubic-bezier(.22,1,.36,1) both}
+.panel[hidden]{display:none}
+@keyframes panIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.chips button{border:1px solid var(--line);background:#fff;border-radius:var(--radius);padding:6px 15px;font-size:13px;font-weight:600;color:var(--mute)}
+.chips button[aria-pressed="true"]{background:var(--btn-bg);border-color:var(--btn-bg);color:#fff}
+.list{display:grid;grid-template-columns:1fr;gap:14px}
+.item{background:#fff;border-radius:22px;box-shadow:0 6px 22px rgba(0,0,0,.1);padding:20px;display:flex;flex-direction:column;gap:12px;transition:opacity .25s,transform .25s;animation:panIn .4s ease both}
+.item.out{opacity:0;transform:scale(.94)}
+.item.cx h3,.item.cx .meta,.item.cx .tot{opacity:.5;text-decoration:line-through}
+.row1{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.item h3{margin:0;font:700 20px/1.2 var(--font-head);color:var(--brand)}
+.id{font-size:12px;color:var(--mute);letter-spacing:.06em}
+.badge{font-size:12px;font-weight:700;padding:4px 12px;border-radius:var(--radius);white-space:nowrap}
+.b-Confirmed,.b-Ready{background:#dcf5e5;color:#15622f}
+.b-Pending,.b-New{background:#fef0cf;color:var(--warn)}
+.b-Preparing{background:#dbeafe;color:#1d4ed8}
+.b-Cancelled{background:#eceeed;color:#6b746e}
+.meta{display:flex;flex-direction:column;gap:3px;font-size:14.5px;color:#26332b;margin:0}
+.meta span{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding:4px 0}
+.meta span em{font-style:normal;color:var(--mute)}
+.tot{display:flex;justify-content:space-between;font-weight:700;font-size:16px}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border-radius:var(--radius);padding:9px 18px;font-size:13.5px;font-weight:700;border:1.5px solid transparent;transition:background .2s,color .2s}
+.btn--go{background:var(--brand);color:#fff}.btn--go:hover{background:var(--brand-bright);color:#06280f}
+.btn--dark{background:var(--btn-bg);color:#fff}.btn--dark:hover{background:#333}
+.btn--no{background:#fff;border-color:#e3b4af;color:var(--bad)}.btn--no:hover{background:#fdeceb}
+.btn[disabled]{opacity:.35;pointer-events:none}
+.empty{text-align:center;color:var(--mute);padding:46px 10px;border:1.5px dashed var(--line);border-radius:22px}
+
+/* ---- time slots ---- */
+.card{background:#fff;border-radius:22px;box-shadow:0 6px 22px rgba(0,0,0,.1);padding:20px 16px}
+.days{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:thin}
+.days button{flex:0 0 auto;min-width:62px;border:1.5px solid var(--line);background:#fff;border-radius:16px;padding:7px 10px;font-weight:700;color:var(--mute);line-height:1.2}
+.days button small{display:block;font-weight:500;font-size:11px}
+.days button[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+.sl-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 12px}
+.sl-bar h2{margin:0;font:700 19px var(--font-head);color:var(--brand)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--mute);margin:0 0 12px}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:5px}
+.l-open{background:#cdeedb}.l-closed{background:#dcdfdd}.l-booked{background:var(--btn-bg)}
+.gwrap{overflow:auto;max-height:68vh;border:1px solid var(--line);border-radius:14px;user-select:none;-webkit-user-select:none}
+table.grid{border-collapse:separate;border-spacing:3px;width:100%}
+.grid th{font-size:11.5px;font-weight:700;color:var(--mute);background:#fff;white-space:nowrap}
+.grid th[data-t],.grid th[data-r]{cursor:pointer}
+.grid th[data-t]:hover,.grid th[data-r]:hover{color:var(--brand)}
+.grid thead th{position:sticky;top:0;z-index:3;padding:6px 4px}
+.grid tbody th{position:sticky;left:0;z-index:2;text-align:left;padding:0 10px}
+.grid thead th:first-child{left:0;z-index:4}
+.grid th small{display:block;font-weight:500;font-size:10px;color:var(--mute)}
+.cell{height:38px;min-width:40px;border-radius:8px;text-align:center;font-size:11px;font-weight:700;cursor:pointer;transition:background .15s}
+.cell.open{background:#cdeedb;color:#15622f}
+.cell.open:hover{background:var(--brand-bright)}
+.cell.closed{background:repeating-linear-gradient(45deg,#eceeed,#eceeed 5px,#e1e4e2 5px,#e1e4e2 10px);color:#8a938d}
+.cell.booked{background:var(--btn-bg);color:#fff;cursor:not-allowed}
+.hint{font-size:12.5px;color:var(--mute);margin:10px 2px 0}
+
+/* ---- menu & prices ---- */
+.mgrid{display:grid;grid-template-columns:1fr;gap:16px}
+.card h2{margin:0 0 4px;font:700 20px var(--font-head);color:var(--brand)}
+.card p.sub{margin:0 0 14px;color:var(--mute);font-size:14px}
+.mrow{display:grid;grid-template-columns:56px 1fr;gap:8px 12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.mrow:first-of-type{border-top:0}
+.mrow__img{width:56px;height:56px;border-radius:14px;background:var(--soft) center/cover no-repeat}
+.mrow__ctl{grid-column:1/-1;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.fld{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+.fld:focus-within{border-color:var(--brand)}
+.fld span{padding:0 0 0 12px;color:var(--mute);font-weight:700}
+.fld input,.txt{border:0;outline:0;font:inherit;padding:10px 12px;background:transparent;width:100%;min-width:0;color:var(--text)}
+.txt{border:1.5px solid var(--line);border-radius:12px}
+.txt:focus{border-color:var(--brand)}
+.fld--p{width:150px}
+.sw{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--mute);cursor:pointer}
+.sw input{position:absolute;opacity:0}
+.sw i{width:38px;height:22px;border-radius:99px;background:#cfd6d1;position:relative;transition:background .2s}
+.sw i::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s}
+.sw input:checked + i{background:var(--brand)}
+.sw input:checked + i::after{transform:translateX(16px)}
+.sw input:focus-visible + i{outline:3px solid var(--brand-bright);outline-offset:2px}
+.rm{margin-left:auto;background:none;border:0;color:var(--bad);font-weight:700;font-size:13px;padding:6px 8px}
+.pr{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px}
+.pr label{display:block;font-weight:700;font-size:13px;margin-bottom:4px}
+.pr small{color:var(--mute);font-weight:400}
+.foot{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,30px);background:var(--btn-bg);color:#fff;padding:11px 14px 11px 20px;border-radius:var(--radius);display:flex;gap:14px;align-items:center;opacity:0;pointer-events:none;transition:.28s;z-index:200;box-shadow:var(--shadow);max-width:92vw;font-size:14px}
+.toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast button{background:none;border:0;color:var(--brand-bright);font-weight:800;padding:2px 6px}
+
+/* ================= responsive: same breakpoints as the other pages ================= */
+@media (max-width:399px){ .tabs button{font-size:10px;padding:9px 5px} }
+@media (min-width:450px){ .tabs ul{padding:0 8px;gap:2px} .tabs button{font-size:12.5px;padding:10px 12px} }
+@media (min-width:600px){
+  .tabs ul{padding:0 10px;gap:4px} .tabs button{font-size:13.5px;padding:10px 18px}
+  .stats{grid-template-columns:repeat(4,1fr)}
+  .list{grid-template-columns:1fr 1fr}
+  .pr{grid-template-columns:1fr 1fr}
+}
+@media (min-width:900px){
+  :root{--nav-h:64px;--nav-end-r:32px;--tabs-h:58px;--tabs-top:92px}
+  body{padding-top:112px}
+  .nav{left:50%;right:auto;top:16px;transform:translateX(-50%);width:max-content;max-width:calc(100% - 32px)}
+  .nav__title{padding:0 56px;font-size:17px}
+  .adm{padding:16px 48px 100px}
+  .stat b{font-size:32px}
+  .tabs{width:max-content;max-width:100%;margin:0 auto 20px}
+  .tabs ul{padding:0 10px;gap:6px;overflow:visible}
+  .tabs button{font-size:15px;padding:12px 26px}
+  .list{grid-template-columns:repeat(3,1fr)}
+  .card{padding:28px 32px}
+  .mgrid{grid-template-columns:1.7fr 1fr;align-items:start}
+  .mrow{grid-template-columns:56px 1fr auto;}
+  .mrow__ctl{grid-column:auto}
+  .cell{min-width:36px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= ISLAND 1: title only ================= -->
+<header class="nav" role="banner">
+  <div class="nav__inner"><h1 class="nav__title">Admin dashboard</h1></div>
+</header>
+
+<main class="adm">
+  <!-- ================= STATS ================= -->
+  <section class="stats" aria-label="Today at a glance">
+    <div class="stat"><b id="s1">0</b><span>Reservations today</span></div>
+    <div class="stat"><b id="s2">0</b><span>Open orders</span></div>
+    <div class="stat"><b id="s3">0</b><span>Free time slots today</span></div>
+    <div class="stat"><b id="s4">0</b><span>Takings today</span></div>
+  </section>
+
+  <!-- ================= ISLAND 2: tabs ================= -->
+  <nav class="tabs" aria-label="Admin sections" id="tabs">
+    <div class="tabs__inner">
+      <span class="tabs__pill" id="tPill" aria-hidden="true"></span>
+      <ul role="tablist">
+        <li><button type="button" role="tab" data-t="ord" aria-selected="true">Orders</button></li>
+        <li><button type="button" role="tab" data-t="res" aria-selected="false">Reservations</button></li>
+        <li><button type="button" role="tab" data-t="slots" aria-selected="false">Time slots</button></li>
+        <li><button type="button" role="tab" data-t="menu" aria-selected="false">Menu &amp; prices</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="panel" id="p-ord">
+    <div class="chips" id="fOrd"></div>
+    <div class="list" id="lOrd"></div>
+  </section>
+
+  <section class="panel" id="p-res" hidden>
+    <div class="chips" id="fRes"></div>
+    <div class="list" id="lRes"></div>
+  </section>
+
+  <section class="panel" id="p-slots" hidden>
+    <div class="card">
+      <div class="days" id="days" role="group" aria-label="Choose a date"></div>
+      <div class="sl-bar">
+        <h2 id="slTitle">Today</h2>
+        <div class="acts"><button class="btn btn--go" id="openAll" type="button">Open all</button><button class="btn btn--no" id="closeAll" type="button">Close all</button></div>
+      </div>
+      <p class="legend"><span><i class="l-open"></i>Open to book</span><span><i class="l-closed"></i>Closed</span><span><i class="l-booked"></i>Booked (1 hour)</span></p>
+      <div class="gwrap"><table class="grid" id="grid"></table></div>
+      <p class="hint">Tap a slot to open or close it. On a computer you can also drag across several. Tap a table, or a time, to flip the whole row or column.</p>
+    </div>
+  </section>
+
+  <section class="panel" id="p-menu" hidden>
+    <div class="mgrid">
+      <div class="card">
+        <h2>Menu items</h2>
+        <p class="sub">Change a name or price and every order total updates. Switch a dish off when it sells out.</p>
+        <div id="mList"></div>
+        <div class="foot">
+          <button class="btn btn--dark" id="addDish" type="button">Add a dish</button>
+          <button class="btn btn--go" id="saveMenu" type="button">Save menu</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Reservation prices</h2>
+        <p class="sub">What guests pay to hold a booking.</p>
+        <div class="pr" id="prices"></div>
+        <div class="pr"><div><label for="dep">Deposit <small>(% of the price, paid up front)</small></label><div class="fld"><input id="dep" type="number" min="0" max="100" inputmode="numeric"><span style="padding:0 12px 0 0">%</span></div></div></div>
+        <div class="foot"><button class="btn btn--go" id="savePrices" type="button">Save prices</button></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastMsg"></span><button id="undo" type="button">Undo</button></div>
+
+<script>
+(function(){
+  var NAMES = ['Adaeze Okafor','Tunde Bakare','Chioma Eze','Ibrahim Musa','Ngozi Nwosu','Femi Adeyemi','Amaka Obi','Seyi Ogunleye','Hadiza Bello','Emeka Uche','Yetunde Alabi','Kelechi Anozie','Bola Ajayi','Zainab Yusuf','Chidi Okeke','Funke Balogun'];
+  var ROOMS = [
+    {id:'T1',name:'Table 1',tier:'Table',seats:2},{id:'T2',name:'Table 2',tier:'Table',seats:2},
+    {id:'T3',name:'Table 3',tier:'Table',seats:4},{id:'T4',name:'Table 4',tier:'Table',seats:4},
+    {id:'T5',name:'Table 5',tier:'Table',seats:6},{id:'T6',name:'Table 6',tier:'Table',seats:8},
+    {id:'LA',name:'Lounge A',tier:'Lounge',seats:6},{id:'LB',name:'Lounge B',tier:'Lounge',seats:8},
+    {id:'VIP',name:'VIP Lounge',tier:'VIP',seats:12}
+  ];
+  var NSLOT = 28;                                                   // 9:00 AM ... 10:30 PM, every 30 minutes
+  var $ = function(id){ return document.getElementById(id); };
+  var rnd = function(n){ return Math.floor(Math.random() * n); };
+  var pick = function(a){ return a[rnd(a.length)]; };
+  var money = function(n){ return '\u20A6' + Math.round(n || 0).toLocaleString('en-NG'); };
+  function slotParts(i){ var m = 540 + i * 30, h = Math.floor(m / 60), mm = m % 60; return {t:(h % 12 || 12) + ':' + (mm ? '30' : '00'), ap:h >= 12 ? 'PM' : 'AM'}; }
+  function slotLabel(i){ var p = slotParts(i); return p.t + ' ' + p.ap; }
+  function dayInfo(n){ var d = new Date(); d.setDate(d.getDate() + n); return {top:n === 0 ? 'Today' : n === 1 ? 'Tomorrow' : d.toLocaleDateString('en-GB',{weekday:'short'}), sub:d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}), full:d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}; }
+  function ref(){ var c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r = 'HB-'; for(var i = 0; i < 6; i++) r += c.charAt(rnd(c.length)); return r; }
+  function phone(){ return '0' + pick(['801','803','805','810','813','902','908']) + ' ' + (100 + rnd(900)) + ' ' + (1000 + rnd(9000)); }
+  function roomOf(id){ return ROOMS.filter(function(r){ return r.id === id; })[0]; }
+
+  var menu = [
+    {id:'jollof', name:'Party Jollof', img:'menu1.jpg', price:4500, on:true},
+    {id:'egusi', name:'Egusi Soup', img:'menu2.jpg', price:6500, on:true},
+    {id:'owerri', name:'Ofe Owerri', img:'menu3.jpg', price:8000, on:true},
+    {id:'afang', name:'Afang Soup', img:'menu4.jpg', price:6500, on:true},
+    {id:'seafood', name:'Seafood Rice', img:'menu5.jpg', price:7500, on:true},
+    {id:'catfish', name:'Catfish Pepper Soup', img:'menu6.jpg', price:5500, on:true},
+    {id:'asun', name:'Asun', img:'menu7.jpg', price:5000, on:true},
+    {id:'croaker', name:'Grilled Croaker Fish', img:'menu8.jpg', price:9000, on:true},
+    {id:'rivers', name:'Native Rivers Soup', img:'menu9.jpg', price:10000, on:true},
+    {id:'coconut', name:'Coconut Rice', img:'menu10.jpg', price:4000, on:true},
+    {id:'shawarma', name:'Chicken Shawarma', img:'menu11.jpg', price:3500, on:true},
+    {id:'moimoi', name:'Moi Moi', img:'menu12.jpg', price:1500, on:true}
+  ];
+  var prices = {Table:5000, Lounge:15000, VIP:50000}, deposit = 50;
+  var res = [], ord = [], closed = {}, day = 0, tab = 'ord', fRes = 'All', fOrd = 'All', snap = null, tTimer, painting = null;
+
+  function dishPrice(i){ var d = menu.filter(function(m){ return m.id === i.id; })[0]; return d ? d.price : i.p; }
+  function orderTotal(o){ return o.items.reduce(function(s, i){ return s + dishPrice(i) * i.q; }, 0); }
+  function resFee(r){ return prices[roomOf(r.room).tier] || 0; }
+
+  /* ---------- random demo data (new every time the page opens) ---------- */
+  function occupiedBy(d, rid, s){ return res.filter(function(r){ return r.day === d && r.room === rid && r.status !== 'Cancelled' && (r.slot === s || r.slot + 1 === s); })[0]; }
+  function seed(){
+    var tries = 0;
+    while(res.length < 14 && tries++ < 300){
+      var room = pick(ROOMS), d = rnd(3) ? 0 : 1 + rnd(3), s = rnd(27);
+      if(occupiedBy(d, room.id, s) || occupiedBy(d, room.id, s + 1)) continue;
+      res.push({id:ref(), name:pick(NAMES), phone:phone(), guests:1 + rnd(room.seats), room:room.id, day:d, slot:s, status:rnd(3) ? 'Confirmed' : 'Pending'});
+    }
+    res.sort(function(a, b){ return a.day - b.day || a.slot - b.slot; });
+    for(var k = 0; k < 9; k++){
+      var n = 1 + rnd(3), items = [], seen = {};
+      while(items.length < n){ var m = pick(menu); if(seen[m.id]) continue; seen[m.id] = 1; items.push({id:m.id, name:m.name, p:m.price, q:1 + rnd(3)}); }
+      ord.push({id:ref(), name:pick(NAMES), phone:phone(), items:items, ago:2 + rnd(55), status:pick(['New','New','Preparing','Preparing','Ready'])});
+    }
+    ord.sort(function(a, b){ return a.ago - b.ago; });
+    ROOMS.forEach(function(r){ if(rnd(3) === 0){ var s0 = rnd(20); for(var j = 0; j < 4; j++) closed[0 + r.id + (s0 + j)] = 1; } });
+  }
+
+  /* ---------- undo + toast ---------- */
+  function save(){ snap = JSON.stringify({res:res, ord:ord, closed:closed, menu:menu, prices:prices, deposit:deposit}); }
+  function restore(){ if(!snap) return; var s = JSON.parse(snap); res = s.res; ord = s.ord; closed = s.closed; menu = s.menu; prices = s.prices; deposit = s.deposit; renderAll(); }
+  function toast(msg, canUndo){
+    $('toastMsg').textContent = msg; $('undo').hidden = !canUndo;
+    $('toast').classList.add('on'); clearTimeout(tTimer);
+    tTimer = setTimeout(function(){ $('toast').classList.remove('on'); }, 4200);
+  }
+  $('undo').addEventListener('click', function(){ restore(); $('toast').classList.remove('on'); });
+
+  /* ---------- stats ---------- */
+  function bump(id, v){ var el = $(id); if(el.textContent !== String(v)){ el.textContent = v; el.classList.add('pop'); setTimeout(function(){ el.classList.remove('pop'); }, 260); } }
+  function stats(){
+    var free = 0, takings = 0;
+    ROOMS.forEach(function(r){ for(var s = 0; s < NSLOT; s++) if(!closed[0 + r.id + s] && !occupiedBy(0, r.id, s)) free++; });
+    res.forEach(function(r){ if(r.day === 0 && r.status !== 'Cancelled') takings += resFee(r); });
+    ord.forEach(function(o){ if(o.status !== 'Cancelled') takings += orderTotal(o); });
+    bump('s1', res.filter(function(r){ return r.day === 0 && r.status !== 'Cancelled'; }).length);
+    bump('s2', ord.filter(function(o){ return o.status === 'New' || o.status === 'Preparing'; }).length);
+    bump('s3', free);
+    bump('s4', money(takings));
+  }
+
+  /* ---------- cards ---------- */
+  function card(o){
+    var el = document.createElement('article'); el.className = 'item' + (o.status === 'Cancelled' ? ' cx' : '');
+    el.innerHTML = '<div class="row1"><div><h3></h3><div class="id"></div></div><span class="badge"></span></div><p class="meta"></p><div class="tot"></div><div class="acts"></div>';
+    el.querySelector('h3').textContent = o.name; el.querySelector('.id').textContent = o.id;
+    var b = el.querySelector('.badge'); b.textContent = o.status; b.className = 'badge b-' + o.status;
+    return el;
+  }
+  function line(el, k, v){ var s = document.createElement('span'), a = document.createElement('em'); a.textContent = k; s.appendChild(a); s.appendChild(document.createTextNode(v)); el.querySelector('.meta').appendChild(s); }
+  function total(el, k, v){ var t = el.querySelector('.tot'); t.innerHTML = '<span></span><span></span>'; t.children[0].textContent = k; t.children[1].textContent = v; }
+  function btn(el, label, cls, fn, dis){ var b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn--' + cls; b.textContent = label; b.disabled = !!dis; b.addEventListener('click', function(){ fn(el); }); el.querySelector('.acts').appendChild(b); }
+  function drop(list, o, el, label){ save(); el.classList.add('out'); setTimeout(function(){ list.splice(list.indexOf(o), 1); renderAll(); toast(label + ' deleted', true); }, 230); }
+  function chips(host, opts, cur, set){
+    host.innerHTML = '';
+    opts.forEach(function(o){ var b = document.createElement('button'); b.type = 'button'; b.textContent = o; b.setAttribute('aria-pressed', o === cur); b.addEventListener('click', function(){ set(o); renderAll(); }); host.appendChild(b); });
+  }
+  function empty(host, t){ var e = document.createElement('div'); e.className = 'empty'; e.style.gridColumn = '1/-1'; e.textContent = t; host.appendChild(e); }
+
+  var NEXT = {New:'Preparing', Preparing:'Ready'}, NEXTL = {New:'Start preparing', Preparing:'Mark ready'};
+  function drawOrd(){
+    chips($('fOrd'), ['All','New','Preparing','Ready','Cancelled'], fOrd, function(v){ fOrd = v; });
+    var host = $('lOrd'); host.innerHTML = '';
+    var list = ord.filter(function(o){ return fOrd === 'All' || o.status === fOrd; });
+    if(!list.length) return empty(host, 'No orders here.');
+    list.forEach(function(o){
+      var el = card(o);
+      o.items.forEach(function(i){ line(el, i.q + ' \u00D7 ' + i.name, money(dishPrice(i) * i.q)); });
+      line(el, o.ago + ' min ago', o.phone);
+      total(el, 'Order total', money(orderTotal(o)));
+      btn(el, NEXTL[o.status] || 'Done', 'go', function(){ save(); o.status = NEXT[o.status]; renderAll(); toast('Order moved to ' + o.status, true); }, !NEXT[o.status]);
+      btn(el, 'Cancel', 'no', function(){ save(); o.status = 'Cancelled'; renderAll(); toast('Order cancelled', true); }, o.status === 'Cancelled' || o.status === 'Ready');
+      btn(el, 'Delete', 'dark', function(e){ drop(ord, o, e, 'Order'); });
+      host.appendChild(el);
+    });
+  }
+  function drawRes(){
+    chips($('fRes'), ['All','Pending','Confirmed','Cancelled'], fRes, function(v){ fRes = v; });
+    var host = $('lRes'); host.innerHTML = '';
+    var list = res.filter(function(r){ return fRes === 'All' || r.status === fRes; });
+    if(!list.length) return empty(host, 'No reservations here.');
+    list.forEach(function(o){
+      var el = card(o), rm = roomOf(o.room);
+      line(el, 'When', dayInfo(o.day).top + ', ' + slotLabel(o.slot));
+      line(el, 'Seat', rm.name);
+      line(el, 'Guests', String(o.guests));
+      line(el, 'Phone', o.phone);
+      total(el, 'Reservation fee', money(resFee(o)));
+      btn(el, 'Confirm', 'go', function(){ save(); o.status = 'Confirmed'; renderAll(); toast(o.name + ' confirmed', true); }, o.status !== 'Pending');
+      btn(el, 'Cancel', 'no', function(){ save(); o.status = 'Cancelled'; renderAll(); toast('Cancelled. The slot is free again.', true); }, o.status === 'Cancelled');
+      btn(el, 'Delete', 'dark', function(e){ drop(res, o, e, 'Reservation'); });
+      host.appendChild(el);
+    });
+  }
+
+  /* ---------- time slots: desktop = tables down the side, mobile = tables across the top ---------- */
+  var wide = window.matchMedia('(min-width:900px)');
+  function drawDays(){
+    var host = $('days'); host.innerHTML = '';
+    for(var i = 0; i < 14; i++){ (function(i){
+      var d = dayInfo(i), b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-pressed', i === day);
+      b.innerHTML = '<span></span><small></small>'; b.firstChild.textContent = d.top; b.lastChild.textContent = d.sub;
+      b.addEventListener('click', function(){ day = i; drawDays(); drawGrid(); }); host.appendChild(b);
+    })(i); }
+    $('slTitle').textContent = dayInfo(day).full;
+  }
+  var key = function(r, s){ return day + r + s; };
+  function setSlot(r, s, openIt){ if(occupiedBy(day, r, s)) return; if(openIt) delete closed[key(r, s)]; else closed[key(r, s)] = 1; }
+  function cellHTML(r, s){
+    var bk = occupiedBy(day, r, s), st = bk ? 'booked' : closed[key(r, s)] ? 'closed' : 'open';
+    return '<td class="cell ' + st + '" data-r="' + r + '" data-s="' + s + '"' + (bk ? ' title="' + bk.name.replace(/"/g, '') + '"' : '') + '>' + (bk ? bk.name.charAt(0) : st === 'closed' ? '\u2715' : '') + '</td>';
+  }
+  function colHead(s){ var p = slotParts(s); return '<th data-s="' + s + '">' + p.t + '<small>' + p.ap + '</small></th>'; }
+  function rowHead(r){ return '<th data-r="' + r.id + '">' + r.name + '<small>' + r.seats + ' seats</small></th>'; }
+  function drawGrid(){
+    var h = '<thead><tr><th></th>', i, j;
+    if(wide.matches){
+      for(i = 0; i < NSLOT; i++) h += colHead(i);
+      h += '</tr></thead><tbody>';
+      ROOMS.forEach(function(r){ h += '<tr>' + rowHead(r); for(i = 0; i < NSLOT; i++) h += cellHTML(r.id, i); h += '</tr>'; });
+    } else {
+      ROOMS.forEach(function(r){ h += '<th data-r="' + r.id + '">' + r.name.replace('Table ', 'T').replace('Lounge ', 'L').replace(' Lounge', '') + '<small>' + r.seats + ' seats</small></th>'; });
+      h += '</tr></thead><tbody>';
+      for(i = 0; i < NSLOT; i++){ h += '<tr>' + colHead(i).replace('<th ', '<th '); ROOMS.forEach(function(r){ h += cellHTML(r.id, i); }); h += '</tr>'; }
+    }
+    $('grid').innerHTML = h + '</tbody>';
+    stats();
+  }
+  if(wide.addEventListener) wide.addEventListener('change', drawGrid); else wide.addListener(drawGrid);
+  function flip(list){
+    var anyOpen = list.some(function(p){ return !closed[key(p[0], p[1])] && !occupiedBy(day, p[0], p[1]); });
+    list.forEach(function(p){ setSlot(p[0], p[1], !anyOpen); });
+    drawGrid();
+  }
+  $('grid').addEventListener('pointerdown', function(e){
+    var c = e.target.closest('.cell'), th = e.target.closest('th');
+    if(c){
+      if(c.classList.contains('booked')){ toast('Booked. Manage it under Reservations.', false); return; }
+      save(); painting = c.classList.contains('closed');
+      setSlot(c.dataset.r, +c.dataset.s, painting); drawGrid();
+      if(e.pointerType !== 'mouse'){ painting = null; toast('Availability updated', true); }
+    } else if(th && th.dataset.r){ save(); flip(Array.apply(null, Array(NSLOT)).map(function(_, s){ return [th.dataset.r, s]; })); toast('Availability updated', true); }
+    else if(th && th.dataset.s){ save(); flip(ROOMS.map(function(r){ return [r.id, +th.dataset.s]; })); toast('Availability updated', true); }
+  });
+  $('grid').addEventListener('pointerover', function(e){
+    if(painting === null) return;
+    var c = e.target.closest('.cell'); if(!c || c.classList.contains('booked')) return;
+    if(c.classList.contains('closed') === painting){ setSlot(c.dataset.r, +c.dataset.s, painting); drawGrid(); }
+  });
+  window.addEventListener('pointerup', function(){ if(painting !== null){ painting = null; toast('Availability updated', true); } });
+  function setAll(openIt){ save(); ROOMS.forEach(function(r){ for(var s = 0; s < NSLOT; s++) setSlot(r.id, s, openIt); }); drawGrid(); toast((openIt ? 'Everything open' : 'Everything closed') + ' for ' + dayInfo(day).full, true); }
+  $('openAll').addEventListener('click', function(){ setAll(true); });
+  $('closeAll').addEventListener('click', function(){ setAll(false); });
+
+  /* ---------- menu & prices ---------- */
+  function drawMenu(){
+    var host = $('mList'); host.innerHTML = '';
+    menu.forEach(function(d){
+      var row = document.createElement('div'); row.className = 'mrow';
+      row.innerHTML = '<div class="mrow__img"></div><input class="txt" type="text" aria-label="Dish name"><div class="mrow__ctl"><label class="fld fld--p"><span>\u20A6</span><input type="number" min="0" inputmode="numeric" aria-label="Price"></label><label class="sw"><input type="checkbox"><i></i><b style="font-weight:600"></b></label><button class="rm" type="button">Remove</button></div>';
+      var thumb = row.querySelector('.mrow__img'); if(d.img) thumb.style.backgroundImage = 'url(' + d.img + ')';
+      var nm = row.querySelector('.txt'), pr = row.querySelector('input[type=number]'), sw = row.querySelector('.sw input'), lb = row.querySelector('.sw b');
+      nm.value = d.name; pr.value = d.price; sw.checked = d.on; lb.textContent = d.on ? 'Available' : 'Sold out';
+      nm.addEventListener('input', function(){ d.name = nm.value; });
+      pr.addEventListener('input', function(){ d.price = Math.max(0, +pr.value || 0); stats(); });
+      sw.addEventListener('change', function(){ d.on = sw.checked; lb.textContent = d.on ? 'Available' : 'Sold out'; });
+      row.querySelector('.rm').addEventListener('click', function(){ save(); menu.splice(menu.indexOf(d), 1); drawMenu(); toast(d.name + ' removed', true); });
+      host.appendChild(row);
+    });
+    var p = $('prices'); p.innerHTML = '';
+    [['Table','Table booking'],['Lounge','Lounge booking'],['VIP','VIP Lounge booking']].forEach(function(k){
+      var w = document.createElement('div'); w.innerHTML = '<label></label><div class="fld"><span>\u20A6</span><input type="number" min="0" inputmode="numeric"></div>';
+      w.querySelector('label').textContent = k[1]; var inp = w.querySelector('input'); inp.value = prices[k[0]];
+      inp.setAttribute('aria-label', k[1] + ' price');
+      inp.addEventListener('input', function(){ prices[k[0]] = Math.max(0, +inp.value || 0); stats(); });
+      p.appendChild(w);
+    });
+    $('dep').value = deposit;
+  }
+  $('dep').addEventListener('input', function(){ deposit = Math.min(100, Math.max(0, +this.value || 0)); });
+  $('addDish').addEventListener('click', function(){ save(); menu.push({id:'n' + Date.now(), name:'New dish', img:'', price:0, on:true}); drawMenu(); var rows = $('mList').querySelectorAll('.txt'); var l = rows[rows.length - 1]; l.focus(); l.select(); });
+  $('saveMenu').addEventListener('click', function(){ renderAll(); toast('Menu saved. Order totals are updated.', false); });
+  $('savePrices').addEventListener('click', function(){ renderAll(); toast('Reservation prices saved', false); });
+
+  /* ---------- tabs island ---------- */
+  var pill = $('tPill');
+  function placePill(instant){
+    var a = document.querySelector('#tabs button[aria-selected="true"]'); if(!a) return;
+    var r = a.getBoundingClientRect(), b = pill.parentNode.getBoundingClientRect();
+    if(instant) pill.style.transition = 'none';
+    pill.style.width = r.width + 'px'; pill.style.height = r.height + 'px';
+    pill.style.transform = 'translate(' + (r.left - b.left) + 'px,' + (r.top - b.top) + 'px)';
+    if(instant){ void pill.offsetWidth; pill.style.transition = ''; }
+    pill.classList.add('on');
+  }
+  function showTab(t){
+    tab = t;
+    Array.prototype.forEach.call(document.querySelectorAll('#tabs button'), function(b){ b.setAttribute('aria-selected', b.dataset.t === t); });
+    ['ord','res','slots','menu'].forEach(function(k){ var p = $('p-' + k); p.hidden = k !== t; });
+    placePill(false);
+    if(t === 'slots') drawGrid();
+  }
+  $('tabs').addEventListener('click', function(e){ var b = e.target.closest('button'); if(b) showTab(b.dataset.t); });
+  window.addEventListener('resize', function(){ placePill(true); });
+  window.addEventListener('load', function(){ placePill(true); });
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ placePill(true); });
+  if(window.ResizeObserver) new ResizeObserver(function(){ placePill(true); }).observe(document.querySelector('#tabs ul'));
+
+  function renderAll(){ drawOrd(); drawRes(); drawMenu(); drawDays(); drawGrid(); }
+  seed(); renderAll(); placePill(true);
+})();
+</script>
+</body>
+</html>
